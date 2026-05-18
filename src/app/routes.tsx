@@ -6,6 +6,7 @@ import Servicios from "./components/Servicios";
 import { Sectores } from "./components/Sectores";
 import { Contacto } from "./components/Contacto";
 import Blog from "./components/Blog";
+import BlogPostDetail from "./components/BlogPostDetail";
 import Abogados from "./components/Abogados";
 
 export const router = createBrowserRouter([
@@ -19,8 +20,9 @@ export const router = createBrowserRouter([
       { path: "sectores", Component: Sectores },
       { path: "sectores/:sectorSlug", Component: Sectores },
       { path: "abogados", Component: Abogados },
-      { path: "abogados/:id", Component: Abogados },
+      { path: "abogados/:slug", Component: Abogados },
       { path: "blog", Component: Blog },
+      { path: "blog/:slug", Component: BlogPostDetail },
       { path: "contacto", Component: Contacto },
     ],
   },

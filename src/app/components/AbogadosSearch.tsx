@@ -58,7 +58,7 @@ export function AbogadosSearch({ onSearch, className = "" }: AbogadosSearchProps
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.8, delay: 0.2 }}
-      className={`bg-[#1A1B29] p-8 lg:p-12 rounded-2xl shadow-lg border border-[#1A1B29]/20 ${className}`}
+      className={`bg-[#000000] p-8 lg:p-12 rounded-2xl shadow-lg border border-[#000000]/20 ${className}`}
     >
       <motion.div 
         initial={{ opacity: 0, x: 50 }}
@@ -150,7 +150,7 @@ export function AbogadosSearch({ onSearch, className = "" }: AbogadosSearchProps
         </div>
         <button
           onClick={handleSearch}
-          className="px-6 py-2 bg-[#B32017] text-white font-sans font-semibold hover:bg-[#8B1810] transition-colors rounded-lg"
+          className="px-6 py-2 bg-[#e65649] text-white font-sans font-semibold hover:bg-[#8B1810] transition-colors rounded-lg"
         >
           Buscar
         </button>

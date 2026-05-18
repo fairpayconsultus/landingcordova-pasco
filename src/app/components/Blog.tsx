@@ -1,10 +1,14 @@
 import { motion } from 'motion/react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { ArrowRight, Calendar, Clock, User } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { fetchStrapiList, getImageUrl, fetchPaginaConfig } from '../../lib/strapi';
+import { CATEGORY_LABELS } from '../../lib/strapi-types';
+import type { BlogPost, PaginaConfig } from '../../lib/strapi-types';
 
-// Datos de ejemplo para el blog
-const blogPosts = [
+// Datos de ejemplo LEGACY (mantener para referencia)
+const BLOG_POSTS_LEGACY = [
   {
     id: 1,
     title: 'Nuevas regulaciones en el sector energético peruano',
@@ -76,6 +80,27 @@ const blogPosts = [
 const categories = ['Todos', 'Energía', 'Laboral', 'Arbitraje', 'APPs', 'Corporativo', 'Administrativo'];
 
 export default function Blog() {
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [activeCategory, setActiveCategory] = useState('Todos');
+  const [loading, setLoading] = useState(true);
+  const [paginaConfig, setPaginaConfig] = useState<PaginaConfig | null>(null);
+
+  useEffect(() => {
+    const params = activeCategory === 'Todos'
+      ? 'sort=publishedDate:desc'
+      : `sort=publishedDate:desc&filters[category][$eq]=${activeCategory}`;
+
+    fetchStrapiList<BlogPost>('/blog-posts', params)
+      .then(setBlogPosts)
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [activeCategory]);
+
+  useEffect(() => {
+    fetchPaginaConfig().then(setPaginaConfig);
+  }, []);
+
+  const categories = ['Todos', 'Energia', 'Laboral', 'Arbitraje', 'Corporativo', 'Administrativo'];
   const featuredPost = blogPosts.find(post => post.featured);
   const regularPosts = blogPosts.filter(post => !post.featured);
 
@@ -90,12 +115,14 @@ export default function Blog() {
             transition={{ duration: 1.2, ease: "easeOut" }}
             className="absolute inset-0"
           >
-            <ImageWithFallback
-              src="/blog.png"
-              alt="Blog Legal"
-              className="w-full h-full object-cover"
-              style={{ objectPosition: 'center 70%' }}
-            />
+            {paginaConfig?.bannerBlog && (
+              <ImageWithFallback
+                src={getImageUrl(paginaConfig.bannerBlog)}
+                alt="Blog Legal"
+                className="w-full h-full object-cover"
+                style={{ objectPosition: 'center 70%' }}
+              />
+            )}
           </motion.div>
           <motion.div 
             initial={{ opacity: 0 }}
@@ -131,10 +158,10 @@ export default function Blog() {
               transition={{ duration: 0.8, delay: 0.2 }}
             >
               <div className="text-center mb-8">
-                <span className="inline-block px-4 py-2 bg-[#B32017] text-white font-sans text-sm font-semibold rounded-full mb-4">
+                <span className="inline-block px-4 py-2 bg-[#e65649] text-white font-sans text-sm font-semibold rounded-full mb-4">
                   Artículo Destacado
                 </span>
-                <h2 className="font-display text-3xl lg:text-4xl font-bold text-[#1A1B29] mb-4">
+                <h2 className="font-display text-3xl lg:text-4xl font-bold text-[#000000] mb-4">
                   {featuredPost.title}
                 </h2>
               </div>
@@ -142,35 +169,45 @@ export default function Blog() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div className="aspect-[4/3] overflow-hidden rounded-lg">
                   <ImageWithFallback
-                    src={featuredPost.image}
+                    src={getImageUrl(featuredPost.image) || '/blog.png'}
                     alt={featuredPost.title}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                   />
                 </div>
-                
+
                 <div>
                   <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
+                    {featuredPost.author && (
                     <span className="flex items-center gap-1">
                       <User className="w-4 h-4" />
-                      {featuredPost.author}
+                      {featuredPost.author.name}
                     </span>
+                    )}
+                    {featuredPost.publishedDate && (
                     <span className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
-                      {featuredPost.date}
+                      {new Date(featuredPost.publishedDate).toLocaleDateString('es-PE', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                      })}
                     </span>
+                    )}
+                    {featuredPost.readTime && (
                     <span className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
-                      {featuredPost.readTime}
+                      {featuredPost.readTime} min
                     </span>
+                    )}
                   </div>
-                  
-                  <p className="font-sans text-lg text-[#2D2D3D] leading-relaxed mb-6 font-normal">
+
+                  <p className="font-sans text-lg text-[#2D2D3D] leading-relaxed mb-6 font-normal text-justify">
                     {featuredPost.excerpt}
                   </p>
-                  
+
                   <Link
-                    to={`/blog/${featuredPost.id}`}
-                    className="inline-flex items-center gap-2 text-[#B32017] font-sans font-semibold hover:gap-4 transition-all"
+                    to={`/blog/${featuredPost.slug}`}
+                    className="inline-flex items-center gap-2 text-[#e65649] font-sans font-semibold hover:gap-4 transition-all"
                   >
                     Leer artículo completo
                     <ArrowRight className="w-5 h-5" />
@@ -196,13 +233,14 @@ export default function Blog() {
             {categories.map((category) => (
               <button
                 key={category}
+                onClick={() => setActiveCategory(category)}
                 className={`px-6 py-2 font-sans text-sm font-medium rounded-full transition-all ${
-                  category === 'Todos'
-                    ? 'bg-[#1A1B29] text-white'
-                    : 'bg-white text-[#1A1B29] border border-gray-300 hover:bg-[#1A1B29] hover:text-white'
+                  activeCategory === category
+                    ? 'bg-[#000000] text-white'
+                    : 'bg-white text-[#000000] border border-gray-300 hover:bg-[#000000] hover:text-white'
                 }`}
               >
-                {category}
+                {CATEGORY_LABELS[category as any] || category}
               </button>
             ))}
           </motion.div>
@@ -211,7 +249,7 @@ export default function Blog() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {regularPosts.map((post, index) => (
               <motion.article
-                key={post.id}
+                key={post.slug}
                 initial={{ opacity: 0, x: index % 3 === 0 ? -100 : index % 3 === 1 ? 100 : 0 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
@@ -221,7 +259,7 @@ export default function Blog() {
                 {/* Image */}
                 <div className="aspect-[16/9] overflow-hidden">
                   <ImageWithFallback
-                    src={post.image}
+                    src={getImageUrl(post.image) || '/blog.png'}
                     alt={post.title}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                   />
@@ -230,13 +268,13 @@ export default function Blog() {
                 {/* Content */}
                 <div className="p-6">
                   {/* Category */}
-                  <span className="inline-block px-3 py-1 bg-[#B32017]/10 text-[#B32017] font-sans text-xs font-semibold rounded-full mb-3">
-                    {post.category}
+                  <span className="inline-block px-3 py-1 bg-[#e65649]/10 text-[#e65649] font-sans text-xs font-semibold rounded-full mb-3">
+                    {CATEGORY_LABELS[post.category as any] || post.category}
                   </span>
 
                   {/* Title */}
-                  <h3 className="font-display text-xl font-bold text-[#1A1B29] mb-3 leading-tight">
-                    <Link to={`/blog/${post.id}`} className="hover:text-[#B32017] transition-colors">
+                  <h3 className="font-display text-xl font-bold text-[#000000] mb-3 leading-tight">
+                    <Link to={`/blog/${post.slug}`} className="hover:text-[#e65649] transition-colors">
                       {post.title}
                     </Link>
                   </h3>
@@ -249,19 +287,29 @@ export default function Blog() {
                   {/* Meta */}
                   <div className="flex items-center justify-between text-xs text-gray-600">
                     <div className="flex items-center gap-3">
+                      {post.author && (
                       <span className="flex items-center gap-1">
                         <User className="w-3 h-3" />
-                        {post.author}
+                        {post.author.name}
                       </span>
+                      )}
+                      {post.publishedDate && (
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
-                        {post.date}
+                        {new Date(post.publishedDate).toLocaleDateString('es-PE', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: '2-digit'
+                        })}
                       </span>
+                      )}
                     </div>
+                    {post.readTime && (
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      {post.readTime}
+                      {post.readTime} min
                     </span>
+                    )}
                   </div>
                 </div>
               </motion.article>
@@ -276,7 +324,7 @@ export default function Blog() {
             transition={{ delay: 0.6, duration: 0.8 }}
             className="text-center mt-12"
           >
-            <button className="inline-flex items-center gap-2 px-10 py-4 bg-[#1A1B29] text-white font-sans font-semibold hover:bg-[#B32017] transition-colors">
+            <button className="inline-flex items-center gap-2 px-10 py-4 bg-[#000000] text-white font-sans font-semibold hover:bg-[#e65649] transition-colors">
               Cargar más artículos
               <ArrowRight className="w-5 h-5" />
             </button>
@@ -285,7 +333,7 @@ export default function Blog() {
       </section>
 
       {/* Newsletter Section */}
-      <section className="py-20 lg:py-24 bg-[#1A1B29] border-b border-gray-700">
+      <section className="py-20 lg:py-24 bg-[#000000] border-b border-gray-700">
         <div className="max-w-4xl mx-auto px-6 lg:px-12 text-center">
           <motion.div
             initial={{ opacity: 0, x: -100 }}
@@ -304,9 +352,9 @@ export default function Blog() {
               <input
                 type="email"
                 placeholder="Tu correo electrónico"
-                className="flex-1 px-6 py-4 bg-white/10 border border-white/20 text-white placeholder-gray-400 font-sans focus:outline-none focus:border-[#B32017] focus:bg-white/20 transition-all"
+                className="flex-1 px-6 py-4 bg-white/10 border border-white/20 text-white placeholder-gray-400 font-sans focus:outline-none focus:border-[#e65649] focus:bg-white/20 transition-all"
               />
-              <button className="px-8 py-4 bg-[#B32017] text-white font-sans font-semibold hover:bg-[#8B1810] transition-colors">
+              <button className="px-8 py-4 bg-[#e65649] text-white font-sans font-semibold hover:bg-[#8B1810] transition-colors">
                 Suscribirse
               </button>
             </div>

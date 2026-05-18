@@ -1,12 +1,15 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router';
-import { Scale, FileText, Users, Gavel, Shield, Briefcase, ArrowRight, Search, Filter } from 'lucide-react';
+import { Scale, FileText, Users, Gavel, Shield, Briefcase, Building2, ArrowRight, Search, Filter } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useState, useEffect } from 'react';
 import { AbogadosSearch } from './AbogadosSearch';
+import { fetchStrapiList, getImageUrl, fetchPaginaConfig } from '../../lib/strapi';
+import { CATEGORY_LABELS } from '../../lib/strapi-types';
+import type { TeamMember, HeroSlide, BlogPost, PaginaConfig } from '../../lib/strapi-types';
 
-// Importar datos de abogados desde el componente Abogados
-const teamMembers = [
+// Datos LEGACY para fallback
+const TEAM_MEMBERS_LEGACY = [
   {
     id: 1,
     name: 'Omar E. Córdova Paredes',
@@ -118,6 +121,11 @@ const services = [
     title: 'Gestión Legal y Documental',
     description: 'Documentación estratégica, due diligence y gestión documental ISO.',
   },
+  {
+    icon: Building2,
+    title: 'Derecho Corporativo y Societario',
+    description: 'Asesoría integral en gobierno corporativo y operaciones societarias.',
+  },
 ];
 
 const differentiators = [
@@ -147,45 +155,63 @@ const differentiators = [
   },
 ];
 
-const heroImages = [
-  '/fondosocios.png',
-  'https://images.unsplash.com/photo-1686676104932-3d7b6bbaef52?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920',
-  'https://images.unsplash.com/photo-1574469373613-c3672c38bfeb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920',
-  'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920',
-];
-
 export function Home() {
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [featuredPosts, setFeaturedPosts] = useState<BlogPost[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [paginaConfig, setPaginaConfig] = useState<PaginaConfig | null>(null);
 
   useEffect(() => {
+    Promise.all([
+      fetchStrapiList<HeroSlide>('/hero-slides', 'filters[isActive][$eq]=true&sort=order:asc'),
+      fetchStrapiList<TeamMember>('/team-members', 'sort=order:asc&pagination[limit]=3'),
+      fetchStrapiList<BlogPost>('/blog-posts', 'filters[featured][$eq]=true&sort=publishedDate:desc&pagination[limit]=3'),
+      fetchPaginaConfig(),
+    ])
+      .then(([slides, members, posts, config]) => {
+        setHeroSlides(slides);
+        setTeamMembers(members);
+        setFeaturedPosts(posts);
+        setPaginaConfig(config);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    if (heroSlides.length === 0) return;
     const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % heroImages.length);
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % heroSlides.length);
     }, 5000); // Cambio cada 5 segundos
 
     return () => clearInterval(interval);
-  }, []);
+  }, [heroSlides]);
 
   return (
     <div className="w-full bg-white">
       {/* Hero Section - Enhanced & Fully Responsive with Image Slider */}
-      <section className="relative h-[calc(100vh-5rem)] lg:h-[calc(100vh-6rem)] flex items-center justify-center overflow-hidden bg-[#1A1B29]">
+      <section className="relative h-[calc(100vh-5rem)] lg:h-[calc(100vh-6rem)] flex items-center justify-center overflow-hidden bg-[#000000]">
         {/* Background Image Slider */}
         <div className="absolute inset-0 overflow-hidden">
           <AnimatePresence mode="wait">
-            <motion.div
-              key={currentImageIndex}
-              initial={{ opacity: 0, scale: 1.1 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 1.5, ease: "easeInOut" }}
-              className="absolute inset-0"
-            >
-              <ImageWithFallback
-                src={heroImages[currentImageIndex]}
-                alt="Background"
-                className="w-full h-full object-cover"
-              />
-            </motion.div>
+            {heroSlides.length > 0 && (
+              <motion.div
+                key={currentImageIndex}
+                initial={{ opacity: 0, scale: 1.1 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 1.5, ease: "easeInOut" }}
+                className="absolute inset-0"
+              >
+                <ImageWithFallback
+                  src={getImageUrl(heroSlides[currentImageIndex]?.image)}
+                  alt="Background"
+                  className="w-full h-full object-cover"
+                />
+              </motion.div>
+            )}
           </AnimatePresence>
 
           {/* Subtle Overlay for Text Contrast */}
@@ -199,7 +225,7 @@ export function Home() {
             initial={{ opacity: 0, x: -100 }}
             animate={{ opacity: 0.1, x: 0 }}
             transition={{ duration: 1, delay: 0.3 }}
-            className="absolute top-1/4 left-0 w-32 md:w-48 lg:w-64 h-1 bg-gradient-to-r from-transparent via-[#B32017] to-transparent"
+            className="absolute top-1/4 left-0 w-32 md:w-48 lg:w-64 h-1 bg-gradient-to-r from-transparent via-[#e65649] to-transparent"
           />
           <motion.div
             initial={{ opacity: 0, x: 100 }}
@@ -211,7 +237,7 @@ export function Home() {
             initial={{ opacity: 0, x: -100 }}
             animate={{ opacity: 0.1, x: 0 }}
             transition={{ duration: 1, delay: 0.7 }}
-            className="absolute bottom-1/3 left-0 w-40 md:w-60 lg:w-80 h-1 bg-gradient-to-r from-transparent via-[#B32017] to-transparent"
+            className="absolute bottom-1/3 left-0 w-40 md:w-60 lg:w-80 h-1 bg-gradient-to-r from-transparent via-[#e65649] to-transparent"
           />
         </div>
 
@@ -261,10 +287,10 @@ export function Home() {
               className="mb-3 px-4"
             >
               <div className="inline-block max-w-full">
-                <p className="font-kanit text-base sm:text-lg md:text-xl lg:text-2xl text-[#B32017] font-semibold mb-1.5">
+                <p className="font-kanit text-base sm:text-lg md:text-xl lg:text-2xl text-[#e65649] font-semibold mb-1.5">
                   Legal Partners
                 </p>
-                <div className="h-0.5 w-full bg-gradient-to-r from-transparent via-[#B32017] to-transparent" />
+                <div className="h-0.5 w-full bg-gradient-to-r from-transparent via-[#e65649] to-transparent" />
               </div>
             </motion.div>
 
@@ -286,17 +312,24 @@ export function Home() {
               transition={{ duration: 0.8, delay: 1 }}
               className="flex flex-wrap justify-center gap-1.5 px-4"
             >
-              {['Energía', 'Oil & Gas', 'Agroindustria', 'APPs', 'Sector Público'].map((sector, index) => (
-                <motion.span
+              {['Energía', 'Oil & Gas', 'Agroindustria', 'Sector Público'].map((sector, index) => {
+                const sectorSlug = sector.toLowerCase().replace(/\s+&\s+/g, '-').replace(/\s+/g, '-');
+                return (
+                <motion.div
                   key={sector}
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 1.2 + index * 0.1 }}
-                  className="px-2 sm:px-3 py-1 bg-white/5 backdrop-blur-sm border border-white/10 text-white/80 font-sans text-xs font-medium hover:bg-[#B32017]/20 hover:border-[#B32017] hover:text-white transition-all cursor-default"
                 >
-                  {sector}
-                </motion.span>
-              ))}
+                  <Link
+                    to={`/sectores#sector-${sectorSlug}`}
+                    className="inline-block px-2 sm:px-3 py-1 bg-white/5 backdrop-blur-sm border border-white/10 text-white/80 font-sans text-xs font-medium hover:bg-[#e65649]/20 hover:border-[#e65649] hover:text-white transition-all"
+                  >
+                    {sector}
+                  </Link>
+                </motion.div>
+                );
+              })}
             </motion.div>
 
 
@@ -310,21 +343,20 @@ export function Home() {
           transition={{ delay: 1.8, duration: 1 }}
           className="absolute bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 flex gap-2 z-20 hidden"
         >
-          {heroImages.map((_, index) => (
+          {heroSlides.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentImageIndex(index)}
               className={`transition-all duration-300 ${
                 index === currentImageIndex
-                  ? 'w-8 h-1.5 bg-[#B32017]'
+                  ? 'w-8 h-1.5 bg-[#e65649]'
                   : 'w-1.5 h-1.5 bg-white/40 hover:bg-white/60'
               } rounded-full`}
               aria-label={`Ir a imagen ${index + 1}`}
             />
           ))}
         </motion.div>
-
-              </section>
+      </section>
 
       {/* About Section */}
       <section className="py-20 lg:py-24 bg-white">
@@ -338,11 +370,13 @@ export function Home() {
               transition={{ duration: 0.6 }}
             >
               <div className="aspect-[4/3] overflow-hidden">
-                <ImageWithFallback
-                  src="https://images.unsplash.com/photo-1758518731706-be5d5230e5a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1000"
-                  alt="Professional Team"
-                  className="w-full h-full object-cover"
-                />
+                {paginaConfig?.imagenAcerca && (
+                  <ImageWithFallback
+                    src={getImageUrl(paginaConfig.imagenAcerca)}
+                    alt="Professional Team"
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
             </motion.div>
 
@@ -358,7 +392,7 @@ export function Home() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.3 }}
-                className="font-display text-4xl lg:text-5xl font-bold text-[#1A1B29] mb-6"
+                className="font-display text-4xl lg:text-5xl font-bold text-[#000000] mb-6"
               >
                 Acerca del Estudio
               </motion.h2>
@@ -368,7 +402,7 @@ export function Home() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.4 }}
-                className="font-sans text-lg text-[#2D2D3D] leading-relaxed mb-6 font-normal"
+                className="font-sans text-lg text-[#2D2D3D] leading-relaxed mb-6 font-normal text-justify"
               >
                 Somos un estudio boutique de abogados con sede en Lima, Perú, especializado en brindar
                 asesoría jurídica de alta complejidad en diversas materias legales.
@@ -379,7 +413,7 @@ export function Home() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.5 }}
-                className="font-sans text-lg text-[#2D2D3D] leading-relaxed mb-6 font-normal"
+                className="font-sans text-lg text-[#2D2D3D] leading-relaxed mb-6 font-normal text-justify"
               >
                 Nuestro enfoque combina la rigurosidad técnica de los grandes estudios jurídicos con la
                 cercanía, agilidad y compromiso personalizado que solo un estudio boutique puede ofrecer.
@@ -390,9 +424,9 @@ export function Home() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.6 }}
-                className="font-sans text-lg text-[#2D2D3D] leading-relaxed mb-8 font-normal"
+                className="font-sans text-lg text-[#2D2D3D] leading-relaxed mb-8 font-normal text-justify"
               >
-                Operamos como <span className="font-semibold text-[#1A1B29]">canal estratégico de los servicios
+                Operamos como <span className="font-semibold text-[#000000]">canal estratégico de los servicios
                 legales de Consultus Group</span>, combinando la profundidad analítica de una firma de
                 consultoría de primer nivel con la solidez jurídica de un estudio legal especializado.
               </motion.p>
@@ -405,7 +439,7 @@ export function Home() {
               >
                 <Link
                   to="/nosotros"
-                  className="inline-flex items-center gap-2 text-[#B32017] font-sans font-semibold hover:gap-4 transition-all"
+                  className="inline-flex items-center gap-2 text-[#e65649] font-sans font-semibold hover:gap-4 transition-all"
                 >
                   Conocer más sobre nosotros
                   <ArrowRight className="w-5 h-5" />
@@ -416,11 +450,196 @@ export function Home() {
         </div>
       </section>
 
+      {/* Timeline & Differentiators Section */}
+      <section className="py-20 lg:py-24 bg-white relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-20"
+          >
+            <h2 className="font-display text-4xl lg:text-5xl font-bold text-[#000000] mb-4">
+              Más de 25 años de expertise institucional
+            </h2>
+            <p className="font-sans text-xl text-[#2D2D3D] max-w-3xl mx-auto font-light">
+              Un estudio boutique forjado en las entrañas del Estado, transformado en asesor de primer nivel para el sector privado.
+            </p>
+          </motion.div>
+
+          {/* Timeline Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+            {/* Milestone 1 */}
+            <motion.div
+              initial={{ opacity: 0, x: -100 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              className="relative"
+            >
+              <div className="bg-gradient-to-br from-[#e65649] to-[#8B1810] rounded-3xl p-8 text-white h-full hover:shadow-2xl transition-all">
+                <div className="absolute -top-6 left-8 bg-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg border-4 border-[#e65649]">
+                  <span className="font-display text-2xl font-bold text-[#e65649]">25+</span>
+                </div>
+                <h3 className="font-display text-2xl font-bold mb-4 mt-6">Años de Trayectoria</h3>
+                <p className="font-sans text-white/90 leading-relaxed">
+                  Desde la experiencia institucional en Contraloría, JNJ y Procuraduría hacia la asesoría privada especializada.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Milestone 2 */}
+            <motion.div
+              initial={{ opacity: 0, y: -50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="relative"
+            >
+              <div className="bg-gradient-to-br from-[#2D2D3D] to-[#000000] rounded-3xl p-8 text-white h-full hover:shadow-2xl transition-all">
+                <div className="absolute -top-6 left-8 bg-[#e65649] rounded-full w-16 h-16 flex items-center justify-center shadow-lg border-4 border-white">
+                  <span className="font-display text-2xl font-bold text-white">9</span>
+                </div>
+                <h3 className="font-display text-2xl font-bold mb-4 mt-6">Sectores Especializados</h3>
+                <p className="font-sans text-white/90 leading-relaxed">
+                  Energía, Oil & Gas, APPs, Minería, Infraestructura, Agroindustria y más. Expertise en industrias reguladas.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Milestone 3 */}
+            <motion.div
+              initial={{ opacity: 0, x: 100 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="relative"
+            >
+              <div className="bg-gradient-to-br from-[#e65649]/10 to-[#e65649]/5 rounded-3xl p-8 border-2 border-[#e65649] h-full hover:shadow-2xl hover:border-[#e65649]/80 transition-all">
+                <div className="absolute -top-6 left-8 bg-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg border-4 border-[#e65649]">
+                  <span className="font-display text-2xl font-bold text-[#e65649]">7</span>
+                </div>
+                <h3 className="font-display text-2xl font-bold text-[#000000] mb-4 mt-6">Prácticas Legales</h3>
+                <p className="font-sans text-[#2D2D3D] leading-relaxed">
+                  Desde Derecho Administrativo hasta Corporativo. Cobertura integral y multidisciplinaria de servicios legales.
+                </p>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Differentiators */}
+          <div className="bg-gradient-to-r from-[#e65649] via-[#8B1810] to-[#e65649] rounded-3xl p-12 relative overflow-hidden">
+            {/* Background Pattern */}
+            <div className="absolute inset-0 opacity-5" style={{
+              backgroundImage: 'linear-gradient(45deg, white 25%, transparent 25%, transparent 75%, white 75%, white), linear-gradient(45deg, white 25%, transparent 25%, transparent 75%, white 75%, white)',
+              backgroundSize: '40px 40px',
+              backgroundPosition: '0 0, 20px 20px'
+            }} />
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="relative z-10"
+            >
+              <h3 className="font-display text-3xl lg:text-4xl font-bold text-white mb-12 text-center">
+                ¿Por qué somos diferentes?
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <motion.div
+                  initial={{ opacity: 0, x: -50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.1, duration: 0.6 }}
+                  className="flex gap-4"
+                >
+                  <div className="flex-shrink-0">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
+                      <span className="text-2xl">🧠</span>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-sans font-bold text-white text-lg mb-2">Enfoque Multidisciplinario</h4>
+                    <p className="font-sans text-white/90 text-sm leading-relaxed">
+                      Abogados + Ingenieros + Economistas. Perspectiva integral que entiende la realidad operativa más allá de lo legal.
+                    </p>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, x: 50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.2, duration: 0.6 }}
+                  className="flex gap-4"
+                >
+                  <div className="flex-shrink-0">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
+                      <span className="text-2xl">🏛️</span>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-sans font-bold text-white text-lg mb-2">Experiencia Institucional</h4>
+                    <p className="font-sans text-white/90 text-sm leading-relaxed">
+                      Nuestros socios han dirigido procedimientos en CGR, JNJ y Procuraduría. Conocimiento insider del aparato estatal.
+                    </p>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, x: -50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.3, duration: 0.6 }}
+                  className="flex gap-4"
+                >
+                  <div className="flex-shrink-0">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
+                      <span className="text-2xl">⚙️</span>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-sans font-bold text-white text-lg mb-2">Expertise Sectorial Profundo</h4>
+                    <p className="font-sans text-white/90 text-sm leading-relaxed">
+                      Especialización comprobada en energía, O&G, minería, APPs e infraestructura. No generales, especialistas.
+                    </p>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, x: 50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.4, duration: 0.6 }}
+                  className="flex gap-4"
+                >
+                  <div className="flex-shrink-0">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
+                      <span className="text-2xl">🎯</span>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-sans font-bold text-white text-lg mb-2">Boutique con Poder</h4>
+                    <p className="font-sans text-white/90 text-sm leading-relaxed">
+                      Agilidad y cercanía de un estudio pequeño, con recursos y alcance de Consultus Group. Lo mejor de ambos mundos.
+                    </p>
+                  </div>
+                </motion.div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* Services Section */}
-      <section className="py-20 lg:py-24 bg-gradient-to-br from-[#1A1B29] to-[#2D2D3D] relative overflow-hidden">
+      <section className="py-20 lg:py-24 bg-gradient-to-br from-[#000000] to-[#2D2D3D] relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-[0.02]" style={{
-          backgroundImage: 'linear-gradient(#B32017 1px, transparent 1px), linear-gradient(90deg, #B32017 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(#e65649 1px, transparent 1px), linear-gradient(90deg, #e65649 1px, transparent 1px)',
           backgroundSize: '50px 50px'
         }} />
         <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
@@ -447,44 +666,92 @@ export function Home() {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="font-sans text-lg text-gray-300 max-w-3xl mx-auto font-normal"
             >
-              Portafolio integral de seis prácticas legales especializadas, articuladas bajo una
+              Portafolio integral de siete prácticas legales especializadas, articuladas bajo una
               gobernanza estratégica única.
               Soluciones jurídicas integrales para el sector público y privado.
             </motion.p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* Services Timeline */}
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="max-w-4xl mx-auto"
+          >
             {services.map((service, index) => (
               <motion.div
                 key={service.title}
-                initial={{ opacity: 0, x: index % 3 === 0 ? -100 : index % 3 === 1 ? 0 : 100 }}
+                initial={{ opacity: 0, x: index % 2 === 0 ? -100 : 100 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.15, duration: 0.8 }}
-                className="bg-white/95 backdrop-blur-sm border border-white/20 p-8 hover:shadow-xl hover:bg-white transition-all"
+                transition={{ delay: index * 0.1, duration: 0.8 }}
+                className="relative mb-12 last:mb-0"
               >
-                <div className="w-14 h-14 bg-[#B32017] flex items-center justify-center mb-6">
-                  <service.icon className="w-7 h-7 text-white" strokeWidth={1.5} />
+                {/* Timeline line */}
+                {index < services.length - 1 && (
+                  <div className="absolute left-12 top-32 w-1 h-20 bg-gradient-to-b from-[#e65649] to-transparent"></div>
+                )}
+
+                {/* Service Card */}
+                <div className={`flex gap-8 items-start ${index % 2 === 1 ? 'flex-row-reverse' : ''}`}>
+                  {/* Timeline Dot */}
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    whileInView={{ scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.15, duration: 0.5, type: "spring" }}
+                    className="flex-shrink-0 relative z-10"
+                  >
+                    <div className="w-28 h-28 bg-gradient-to-br from-[#e65649] to-[#8B1810] rounded-full flex items-center justify-center shadow-2xl border-4 border-[#2D2D3D]">
+                      <div className="flex flex-col items-center">
+                        <span className="font-sans text-xs font-bold text-white/80 uppercase tracking-wider">Servicio</span>
+                        <span className="font-display text-3xl font-bold text-white">{String(index + 1).padStart(2, '0')}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Content Card */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.15, duration: 0.6 }}
+                    className="flex-1 pt-4"
+                  >
+                    <div className="bg-white/95 backdrop-blur-sm border-2 border-white/40 rounded-2xl p-8 hover:shadow-2xl hover:border-[#e65649]/50 transition-all">
+                      {/* Icon */}
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className="w-16 h-16 bg-[#e65649] rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                          <service.icon className="w-8 h-8 text-white" strokeWidth={1.5} />
+                        </div>
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="font-display text-2xl font-bold text-[#000000] mb-3">
+                        {service.title}
+                      </h3>
+
+                      {/* Description */}
+                      <p className="font-sans text-[#2D2D3D] leading-relaxed font-normal mb-6">
+                        {service.description}
+                      </p>
+
+                      {/* Link */}
+                      <Link
+                        to="/servicios"
+                        className="inline-flex items-center gap-2 text-[#e65649] font-sans font-semibold hover:gap-4 transition-all"
+                      >
+                        Ver detalles
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    </div>
+                  </motion.div>
                 </div>
-
-                <h3 className="font-sans text-xl font-semibold text-[#1A1B29] mb-4">
-                  {service.title}
-                </h3>
-
-                <p className="font-sans text-[#2D2D3D] leading-relaxed font-normal mb-6">
-                  {service.description}
-                </p>
-
-                <Link
-                  to="/servicios"
-                  className="inline-flex items-center gap-2 text-[#B32017] font-sans font-semibold text-sm hover:gap-4 transition-all"
-                >
-                  Ver más
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           <motion.div
             initial={{ opacity: 0, x: 100 }}
@@ -495,7 +762,7 @@ export function Home() {
           >
             <Link
               to="/servicios"
-              className="inline-flex items-center gap-2 px-10 py-4 bg-[#B32017] text-white font-sans font-semibold hover:bg-[#8B1810] transition-colors"
+              className="inline-flex items-center gap-2 px-10 py-4 bg-[#e65649] text-white font-sans font-semibold hover:bg-[#8B1810] transition-colors"
             >
               Ver Portafolio Completo
               <ArrowRight className="w-5 h-5" />
@@ -522,7 +789,7 @@ export function Home() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="font-display text-4xl lg:text-5xl font-bold text-[#1A1B29] mb-4"
+              className="font-display text-4xl lg:text-5xl font-bold text-[#000000] mb-4"
             >
               ¿Por Qué Elegirnos?
             </motion.h2>
@@ -545,10 +812,10 @@ export function Home() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.15, duration: 0.8 }}
-                className="bg-gray-50 border border-gray-200 p-8 hover:shadow-lg hover:border-[#B32017]/20 transition-all"
+                className="bg-gray-50 border border-gray-200 p-8 hover:shadow-lg hover:border-[#e65649]/20 transition-all"
               >
-                <div className="w-12 h-1 bg-[#B32017] mb-6" />
-                <h3 className="font-sans text-xl font-semibold text-[#1A1B29] mb-4">
+                <div className="w-12 h-1 bg-[#e65649] mb-6" />
+                <h3 className="font-sans text-xl font-semibold text-[#000000] mb-4">
                   {item.title}
                 </h3>
                 <p className="font-sans text-[#2D2D3D] leading-relaxed font-normal">
@@ -573,7 +840,7 @@ export function Home() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-center mb-16"
           >
-            <h2 className="font-display text-4xl lg:text-5xl font-bold text-[#1A1B29] mb-4">
+            <h2 className="font-display text-4xl lg:text-5xl font-bold text-[#000000] mb-4">
               Blog Legal
             </h2>
             <p className="font-sans text-lg text-[#2D2D3D] max-w-3xl mx-auto font-normal">
@@ -582,47 +849,19 @@ export function Home() {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {[
-              {
-                title: 'Nuevas regulaciones en el sector energético peruano',
-                excerpt: 'Análisis de las últimas disposiciones regulatorias que impactan el desarrollo de proyectos de energía renovable.',
-                author: 'Dr. Carlos Córdova',
-                date: '15 de abril, 2026',
-                readTime: '5 min',
-                category: 'Energía',
-                image: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600'
-              },
-              {
-                title: 'Compliance laboral: Guía para empresas',
-                excerpt: 'Best practices y consideraciones legales para mantener el cumplimiento normativo en relaciones laborales.',
-                author: 'Dra. María Pasco',
-                date: '10 de abril, 2026',
-                readTime: '7 min',
-                category: 'Laboral',
-                image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600'
-              },
-              {
-                title: 'Arbitrajes comerciales: Tendencias recientes',
-                excerpt: 'Evolución jurisprudencial en materia de arbitraje comercial y su aplicación en contratos complejos.',
-                author: 'Dr. Luis Mendez',
-                date: '5 de abril, 2026',
-                readTime: '6 min',
-                category: 'Arbitraje',
-                image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600'
-              }
-            ].map((post, index) => (
+            {featuredPosts.map((post, index) => (
               <motion.article
-                key={index}
+                key={post.slug}
                 initial={{ opacity: 0, x: index % 2 === 0 ? -100 : 100 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.15, duration: 0.8 }}
-                className="bg-gray-50 border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg hover:border-[#B32017]/20 transition-all"
+                className="bg-gray-50 border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg hover:border-[#e65649]/20 transition-all"
               >
                 {/* Image */}
                 <div className="aspect-[16/9] overflow-hidden">
-                  <img
-                    src={post.image}
+                  <ImageWithFallback
+                    src={getImageUrl(post.image) || '/blog.png'}
                     alt={post.title}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                   />
@@ -631,12 +870,12 @@ export function Home() {
                 {/* Content */}
                 <div className="p-6">
                   {/* Category */}
-                  <span className="inline-block px-3 py-1 bg-[#B32017]/10 text-[#B32017] font-sans text-xs font-semibold rounded-full mb-3">
-                    {post.category}
+                  <span className="inline-block px-3 py-1 bg-[#e65649]/10 text-[#e65649] font-sans text-xs font-semibold rounded-full mb-3">
+                    {CATEGORY_LABELS[post.category as any] || post.category}
                   </span>
 
                   {/* Title */}
-                  <h3 className="font-display text-xl font-bold text-[#1A1B29] mb-3 leading-tight">
+                  <h3 className="font-display text-xl font-bold text-[#000000] mb-3 leading-tight">
                     {post.title}
                   </h3>
 
@@ -648,16 +887,24 @@ export function Home() {
                   {/* Meta */}
                   <div className="flex items-center justify-between text-xs text-gray-600 mb-4">
                     <div className="flex items-center gap-3">
-                      <span>{post.author}</span>
-                      <span>{post.date}</span>
+                      {post.author && <span>{post.author.name}</span>}
+                      {post.publishedDate && (
+                        <span>
+                          {new Date(post.publishedDate).toLocaleDateString('es-PE', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: '2-digit'
+                          })}
+                        </span>
+                      )}
                     </div>
-                    <span>{post.readTime}</span>
+                    {post.readTime && <span>{post.readTime} min</span>}
                   </div>
 
                   {/* Read More Link */}
                   <Link
-                    to="/blog"
-                    className="inline-flex items-center gap-2 text-[#B32017] font-sans font-semibold text-sm hover:gap-4 transition-all"
+                    to={`/blog/${post.slug}`}
+                    className="inline-flex items-center gap-2 text-[#e65649] font-sans font-semibold text-sm hover:gap-4 transition-all"
                   >
                     Leer más
                     <ArrowRight className="w-4 h-4" />
@@ -676,7 +923,7 @@ export function Home() {
           >
             <Link
               to="/blog"
-              className="inline-flex items-center gap-2 px-10 py-4 bg-[#1A1B29] text-white font-sans font-semibold hover:bg-[#B32017] transition-colors"
+              className="inline-flex items-center gap-2 px-10 py-4 bg-[#000000] text-white font-sans font-semibold hover:bg-[#e65649] transition-colors"
             >
               Ver todos los artículos
               <ArrowRight className="w-5 h-5" />
@@ -703,7 +950,7 @@ export function Home() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="font-display text-4xl lg:text-5xl font-bold text-[#1A1B29] mb-4"
+              className="font-display text-4xl lg:text-5xl font-bold text-[#000000] mb-4"
             >
               Nuestro Equipo
             </motion.h2>
@@ -736,7 +983,7 @@ export function Home() {
 
           {/* Featured Lawyers Preview */}
           <div className="text-center mb-8">
-            <h3 className="font-display text-2xl font-bold text-[#1A1B29] mb-2">
+            <h3 className="font-display text-2xl font-bold text-[#000000] mb-2">
               Abogados Destacados
             </h3>
             <p className="font-sans text-gray-600">
@@ -748,27 +995,27 @@ export function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             {teamMembers.slice(0, 3).map((lawyer, index) => (
               <motion.div
-                key={lawyer.id}
+                key={lawyer.slug}
                 initial={{ opacity: 0, x: index % 3 === 0 ? -100 : index % 3 === 1 ? 100 : 0 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.15, duration: 0.8 }}
-                className="bg-[#1A1B29]/95 backdrop-blur-sm border border-white/20 rounded-xl overflow-hidden hover:shadow-xl hover:bg-[#1A1B29] transition-all"
+                className="bg-[#000000]/95 backdrop-blur-sm border border-white/20 rounded-xl overflow-hidden hover:shadow-xl hover:bg-[#000000] transition-all"
               >
                 <div className="flex items-start p-4">
                   {/* Small Image */}
                   <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 mr-4">
                     <ImageWithFallback
-                      src={lawyer.image}
+                      src={getImageUrl(lawyer.photo) || '/Omar.png'}
                       alt={lawyer.name}
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  
+
                   {/* Content */}
                   <div className="flex-1 text-left">
                     <div className="mb-2">
-                      <span className="inline-block px-2 py-1 bg-[#B32017] text-white font-sans text-xs font-semibold rounded-full">
+                      <span className="inline-block px-2 py-1 bg-[#e65649] text-white font-sans text-xs font-semibold rounded-full">
                         {lawyer.role}
                       </span>
                     </div>
@@ -776,14 +1023,14 @@ export function Home() {
                       {lawyer.name}
                     </h4>
                     <p className="font-sans text-xs text-gray-300 mb-2">
-                      {lawyer.experience}
+                      {lawyer.experience || lawyer.role}
                     </p>
                     {/* Practice Areas */}
                     <div className="flex flex-wrap gap-1">
-                      {lawyer.practiceAreas.slice(0, 2).map((area, idx) => (
+                      {(lawyer.practiceAreas || []).slice(0, 2).map((area, idx) => (
                         <span
                           key={idx}
-                          className="px-2 py-1 bg-[#B32017]/20 text-white font-sans text-xs rounded"
+                          className="px-2 py-1 bg-[#e65649]/20 text-white font-sans text-xs rounded"
                         >
                           {area}
                         </span>
@@ -805,7 +1052,7 @@ export function Home() {
           >
             <Link
               to="/abogados"
-              className="inline-flex items-center justify-center gap-2 px-12 py-4 bg-[#1A1B29] border-2 border-white/20 text-white font-sans font-semibold hover:bg-white hover:text-[#1A1B29] transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-12 py-4 bg-[#000000] border-2 border-white/20 text-white font-sans font-semibold hover:bg-white hover:text-[#000000] transition-colors"
             >
               Ver Todos los Abogados
               <ArrowRight className="w-5 h-5" />
@@ -813,7 +1060,6 @@ export function Home() {
           </motion.div>
         </div>
       </section>
-
-          </div>
+    </div>
   );
 }

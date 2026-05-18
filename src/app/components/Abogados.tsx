@@ -3,8 +3,10 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Search, Briefcase, GraduationCap, Filter, ArrowLeft, Mail, Phone, Calendar } from 'lucide-react';
+import { fetchStrapiList, getImageUrl, fetchPaginaConfig } from '../../lib/strapi';
+import type { TeamMember, PaginaConfig } from '../../lib/strapi-types';
 
-const teamMembers = [
+const TEAM_MEMBERS_LEGACY = [
   {
     id: 1,
     name: 'Omar E. Córdova Paredes',
@@ -168,14 +170,35 @@ const industries = [
 
 // Componente para vista individual de abogado
 function AbogadoProfile() {
-  const { id } = useParams();
-  const lawyer = teamMembers.find(m => m.id === parseInt(id || ''));
+  const { slug } = useParams();
+  const [lawyer, setLawyer] = useState<TeamMember | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!slug) return;
+    fetchStrapiList<TeamMember>('/team-members', `filters[slug][$eq]=${slug}&populate=*`)
+      .then(results => {
+        setLawyer(results[0] || null);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <p className="font-sans text-gray-600">Cargando...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!lawyer) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
-          <h1 className="font-display text-3xl font-bold text-[#1A1B29] mb-4">
+          <h1 className="font-display text-3xl font-bold text-[#000000] mb-4">
             Abogado no encontrado
           </h1>
           <p className="font-sans text-gray-600 mb-8">
@@ -183,7 +206,7 @@ function AbogadoProfile() {
           </p>
           <Link
             to="/abogados"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[#B32017] text-white font-sans font-semibold hover:bg-[#8B1810] transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#e65649] text-white font-sans font-semibold hover:bg-[#8B1810] transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             Volver a Abogados
@@ -196,7 +219,7 @@ function AbogadoProfile() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <section className="py-20 bg-[#1A1B29]">
+      <section className="py-20 bg-[#000000]">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="flex items-center gap-4 mb-8">
             <Link
@@ -217,7 +240,7 @@ function AbogadoProfile() {
               className="aspect-[4/5] overflow-hidden rounded-2xl"
             >
               <ImageWithFallback
-                src={lawyer.image}
+                src={getImageUrl(lawyer.photo) || '/Omar.png'}
                 alt={lawyer.name}
                 className="w-full h-full object-cover"
               />
@@ -230,7 +253,7 @@ function AbogadoProfile() {
               transition={{ duration: 0.6, delay: 0.2 }}
             >
               <div className="mb-6">
-                <span className="inline-block px-4 py-2 bg-[#B32017] text-white font-sans text-sm font-semibold rounded-full mb-4">
+                <span className="inline-block px-4 py-2 bg-[#e65649] text-white font-sans text-sm font-semibold rounded-full mb-4">
                   {lawyer.role}
                 </span>
                 <h1 className="font-display text-4xl lg:text-5xl font-bold text-white mb-4">
@@ -252,12 +275,13 @@ function AbogadoProfile() {
                 </div>
               </div>
 
-              <p className="font-sans text-lg text-gray-300 leading-relaxed mb-8">
+              <p className="font-sans text-lg text-gray-300 leading-relaxed mb-8 text-justify">
                 {lawyer.bio}
               </p>
 
+              {lawyer.languages && lawyer.languages.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {lawyer.languages.map((lang, idx) => (
+                {(lawyer.languages || []).map((lang, idx) => (
                   <span
                     key={idx}
                     className="px-3 py-1 bg-white/10 text-white font-sans text-sm rounded-full"
@@ -266,6 +290,7 @@ function AbogadoProfile() {
                   </span>
                 ))}
               </div>
+              )}
             </motion.div>
           </div>
         </div>
@@ -283,15 +308,15 @@ function AbogadoProfile() {
               transition={{ duration: 0.8, delay: 0.2 }}
             >
               <div className="flex items-center gap-3 mb-6">
-                <GraduationCap className="w-6 h-6 text-[#B32017]" />
-                <h3 className="font-display text-2xl font-bold text-[#1A1B29]">
+                <GraduationCap className="w-6 h-6 text-[#e65649]" />
+                <h3 className="font-display text-2xl font-bold text-[#000000]">
                   Educación
                 </h3>
               </div>
               <ul className="space-y-3">
-                {lawyer.education.map((item, idx) => (
+                {(lawyer.education || []).map((item, idx) => (
                   <li key={idx} className="flex items-start gap-3 font-sans text-[#2D2D3D]">
-                    <span className="inline-block w-1.5 h-1.5 bg-[#B32017] mt-2 flex-shrink-0" />
+                    <span className="inline-block w-1.5 h-1.5 bg-[#e65649] mt-2 flex-shrink-0" />
                     {item}
                   </li>
                 ))}
@@ -306,16 +331,16 @@ function AbogadoProfile() {
               transition={{ duration: 0.8, delay: 0.3 }}
             >
               <div className="flex items-center gap-3 mb-6">
-                <Briefcase className="w-6 h-6 text-[#B32017]" />
-                <h3 className="font-display text-2xl font-bold text-[#1A1B29]">
+                <Briefcase className="w-6 h-6 text-[#e65649]" />
+                <h3 className="font-display text-2xl font-bold text-[#000000]">
                   Áreas de Práctica
                 </h3>
               </div>
               <div className="flex flex-wrap gap-2">
-                {lawyer.practiceAreas.map((area, idx) => (
+                {(lawyer.practiceAreas || []).map((area, idx) => (
                   <span
                     key={idx}
-                    className="px-3 py-2 bg-[#B32017]/10 text-[#B32017] font-sans text-sm rounded-lg"
+                    className="px-3 py-2 bg-[#e65649]/10 text-[#e65649] font-sans text-sm rounded-lg"
                   >
                     {area}
                   </span>
@@ -331,13 +356,13 @@ function AbogadoProfile() {
               transition={{ duration: 0.8, delay: 0.4 }}
             >
               <div className="flex items-center gap-3 mb-6">
-                <Calendar className="w-6 h-6 text-[#B32017]" />
-                <h3 className="font-display text-2xl font-bold text-[#1A1B29]">
+                <Calendar className="w-6 h-6 text-[#e65649]" />
+                <h3 className="font-display text-2xl font-bold text-[#000000]">
                   Industrias
                 </h3>
               </div>
               <div className="flex flex-wrap gap-2">
-                {lawyer.industries.map((industry, idx) => (
+                {(lawyer.industries || []).map((industry, idx) => (
                   <span
                     key={idx}
                     className="px-3 py-2 bg-gray-100 text-gray-700 font-sans text-sm rounded-lg"
@@ -357,13 +382,13 @@ function AbogadoProfile() {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="mt-16"
           >
-            <h3 className="font-display text-3xl font-bold text-[#1A1B29] mb-8">
+            <h3 className="font-display text-3xl font-bold text-[#000000] mb-8">
               Logros Destacados
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {lawyer.achievements.map((achievement, idx) => (
+              {(lawyer.achievements || []).map((achievement, idx) => (
                 <div key={idx} className="flex items-start gap-3">
-                  <span className="inline-block w-2 h-2 bg-[#B32017] mt-2 flex-shrink-0 rounded-full" />
+                  <span className="inline-block w-2 h-2 bg-[#e65649] mt-2 flex-shrink-0 rounded-full" />
                   <p className="font-sans text-[#2D2D3D]">{achievement}</p>
                 </div>
               ))}
@@ -379,7 +404,7 @@ function AbogadoProfile() {
             className="mt-16 text-center"
           >
             <div className="bg-[#F8F9FA] p-8 rounded-2xl border border-gray-200">
-              <h3 className="font-display text-2xl font-bold text-[#1A1B29] mb-4">
+              <h3 className="font-display text-2xl font-bold text-[#000000] mb-4">
                 ¿Necesita asesoría legal?
               </h3>
               <p className="font-sans text-[#2D2D3D] mb-6">
@@ -388,14 +413,14 @@ function AbogadoProfile() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
                   href={`mailto:${lawyer.email}`}
-                  className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-[#B32017] text-white font-sans font-semibold hover:bg-[#8B1810] transition-colors"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-[#e65649] text-white font-sans font-semibold hover:bg-[#8B1810] transition-colors"
                 >
                   <Mail className="w-5 h-5" />
                   Enviar Email
                 </a>
                 <a
                   href={`tel:${lawyer.phone}`}
-                  className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-[#1A1B29] text-white font-sans font-semibold hover:bg-[#B32017] transition-colors"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-[#000000] text-white font-sans font-semibold hover:bg-[#e65649] transition-colors"
                 >
                   <Phone className="w-5 h-5" />
                   Llamar
@@ -410,24 +435,40 @@ function AbogadoProfile() {
 }
 
 export default function Abogados() {
-  const { id } = useParams();
+  const { slug } = useParams();
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPracticeArea, setSelectedPracticeArea] = useState('Todas');
   const [selectedIndustry, setSelectedIndustry] = useState('Todas');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
+  const [paginaConfig, setPaginaConfig] = useState<PaginaConfig | null>(null);
 
-  // Si hay un ID, mostrar vista individual
-  if (id) {
+  useEffect(() => {
+    Promise.all([
+      fetchStrapiList<TeamMember>('/team-members', 'sort=order:asc'),
+      fetchPaginaConfig(),
+    ])
+      .then(([members, config]) => {
+        setTeamMembers(members);
+        setPaginaConfig(config);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Si hay un slug, mostrar vista individual
+  if (slug) {
     return <AbogadoProfile />;
   }
 
   const filteredMembers = teamMembers.filter(member => {
     const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        member.role.toLowerCase().includes(searchTerm.toLowerCase());
+                        (member.role && member.role.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesPracticeArea = selectedPracticeArea === 'Todas' ||
-                              member.practiceAreas.some(area => area.toLowerCase().includes(selectedPracticeArea.toLowerCase()));
+                              (member.practiceAreas && member.practiceAreas.some(area => area.toLowerCase().includes(selectedPracticeArea.toLowerCase())));
     const matchesIndustry = selectedIndustry === 'Todas' ||
-                          member.industries.some(industry => industry.toLowerCase().includes(selectedIndustry.toLowerCase()));
+                          (member.industries && member.industries.some(industry => industry.toLowerCase().includes(selectedIndustry.toLowerCase())));
     const matchesCategory = selectedCategory === 'Todos' || member.category === selectedCategory;
 
     return matchesSearch && matchesPracticeArea && matchesIndustry && matchesCategory;
@@ -435,14 +476,14 @@ export default function Abogados() {
 
   const stats = {
     socios: teamMembers.filter(m => m.category === 'socio').length,
-    consejeros: 0,
-    asociados: teamMembers.filter(m => m.category.includes('asociado')).length,
+    consultores: 0,
+    asociados: teamMembers.filter(m => m.category && m.category.includes('asociado')).length,
   };
 
   return (
     <div className="w-full bg-white">
       {/* Hero Section */}
-      <section className="relative h-[50vh] min-h-[400px] flex items-center justify-center bg-[#1A1B29]">
+      <section className="relative h-[50vh] min-h-[400px] flex items-center justify-center bg-[#000000]">
         <div className="absolute inset-0">
           <motion.div
             initial={{ scale: 1.1, opacity: 0 }}
@@ -450,12 +491,14 @@ export default function Abogados() {
             transition={{ duration: 1.2, ease: "easeOut" }}
             className="absolute inset-0"
           >
-            <ImageWithFallback
-              src="/nuestro_equipo.png"
-              alt="Equipo Legal"
-              className="w-full h-full object-cover"
-              style={{ objectPosition: 'center 70%' }}
-            />
+            {paginaConfig?.bannerAbogados && (
+              <ImageWithFallback
+                src={getImageUrl(paginaConfig.bannerAbogados)}
+                alt="Equipo Legal"
+                className="w-full h-full object-cover"
+                style={{ objectPosition: 'center 70%' }}
+              />
+            )}
           </motion.div>
           <motion.div 
             initial={{ opacity: 0 }}
@@ -495,7 +538,7 @@ export default function Abogados() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="bg-[#1A1B29] p-8 lg:p-12 rounded-2xl shadow-lg border border-[#1A1B29]/20"
+            className="bg-[#000000] p-8 lg:p-12 rounded-2xl shadow-lg border border-[#000000]/20"
           >
             <motion.div 
               initial={{ opacity: 0, x: 50 }}
@@ -589,7 +632,7 @@ export default function Abogados() {
                   setSelectedIndustry('Todas');
                   setSelectedCategory('Todos');
                 }}
-                className="font-sans text-sm text-[#B32017] hover:text-[#8B1810] transition-colors"
+                className="font-sans text-sm text-[#e65649] hover:text-[#8B1810] transition-colors"
               >
                 Limpiar filtros
               </button>
@@ -610,7 +653,7 @@ export default function Abogados() {
           >
             {[
               { number: stats.socios, label: 'Socios' },
-              { number: stats.consejeros, label: 'Consejeros' },
+              { number: stats.consultores, label: 'Consultores' },
               { number: stats.asociados, label: 'Asociados' },
             ].map((stat, index) => (
               <motion.div
@@ -621,7 +664,7 @@ export default function Abogados() {
                 transition={{ duration: 0.6, delay: 0.3 + index * 0.1 }}
                 className="flex items-center gap-3"
               >
-                <div className="w-12 h-12 bg-[#B32017] rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-[#e65649] rounded-full flex items-center justify-center">
                   <span className="font-display text-lg font-bold text-white">
                     {stat.number}
                   </span>
@@ -647,7 +690,7 @@ export default function Abogados() {
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Search className="w-8 h-8 text-gray-400" />
               </div>
-              <h3 className="font-display text-xl font-bold text-[#1A1B29] mb-2">
+              <h3 className="font-display text-xl font-bold text-[#000000] mb-2">
                 No se encontraron resultados
               </h3>
               <p className="font-sans text-gray-600">
@@ -658,8 +701,8 @@ export default function Abogados() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredMembers.map((member, index) => (
                 <Link
-                  key={member.id}
-                  to={`/abogados/${member.id}`}
+                  key={member.slug}
+                  to={`/abogados/${member.slug}`}
                   className="block"
                 >
                   <motion.div
@@ -667,12 +710,12 @@ export default function Abogados() {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.15, duration: 0.8 }}
-                    className="bg-[#1A1B29]/95 backdrop-blur-sm border border-white/20 rounded-xl overflow-hidden hover:shadow-xl hover:bg-[#1A1B29] transition-all cursor-pointer"
+                    className="bg-[#000000]/95 backdrop-blur-sm border border-white/20 rounded-xl overflow-hidden hover:shadow-xl hover:bg-[#000000] transition-all cursor-pointer"
                   >
                     {/* Image */}
                     <div className="aspect-[4/5] overflow-hidden">
                       <ImageWithFallback
-                        src={member.image}
+                        src={getImageUrl(member.photo) || '/Omar.png'}
                         alt={member.name}
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                       />
@@ -682,7 +725,7 @@ export default function Abogados() {
                     <div className="p-6">
                       {/* Role Badge */}
                       <div className="mb-4">
-                        <span className="inline-block px-3 py-1 bg-[#B32017] text-white font-sans text-xs font-semibold rounded-full">
+                        <span className="inline-block px-3 py-1 bg-[#e65649] text-white font-sans text-xs font-semibold rounded-full">
                           {member.role}
                         </span>
                       </div>
@@ -700,20 +743,20 @@ export default function Abogados() {
                       {/* Practice Areas */}
                       <div className="mb-4">
                         <div className="flex items-center gap-2 mb-2">
-                          <Briefcase className="w-4 h-4 text-[#B32017]" />
+                          <Briefcase className="w-4 h-4 text-[#e65649]" />
                           <h4 className="font-sans text-xs font-bold text-white uppercase tracking-wider">
                             Áreas de Práctica
                           </h4>
                         </div>
                         <div className="flex flex-wrap gap-1">
-                          {member.practiceAreas.slice(0, 2).map((area, idx) => (
-                            <span key={idx} className="px-2 py-1 bg-[#B32017]/20 text-white font-sans text-xs rounded">
+                          {(member.practiceAreas || []).slice(0, 2).map((area, idx) => (
+                            <span key={idx} className="px-2 py-1 bg-[#e65649]/20 text-white font-sans text-xs rounded">
                               {area}
                             </span>
                           ))}
-                          {member.practiceAreas.length > 2 && (
+                          {(member.practiceAreas || []).length > 2 && (
                             <span className="px-2 py-1 bg-white/20 text-white font-sans text-xs rounded">
-                              +{member.practiceAreas.length - 2}
+                              +{(member.practiceAreas || []).length - 2}
                             </span>
                           )}
                         </div>
@@ -722,20 +765,20 @@ export default function Abogados() {
                       {/* Industries */}
                       <div className="mb-6">
                         <div className="flex items-center gap-2 mb-2">
-                          <GraduationCap className="w-4 h-4 text-[#B32017]" />
+                          <GraduationCap className="w-4 h-4 text-[#e65649]" />
                           <h4 className="font-sans text-xs font-bold text-white uppercase tracking-wider">
                             Industrias
                           </h4>
                         </div>
                         <div className="flex flex-wrap gap-1">
-                          {member.industries.slice(0, 2).map((industry, idx) => (
+                          {(member.industries || []).slice(0, 2).map((industry, idx) => (
                             <span key={idx} className="px-2 py-1 bg-white/20 text-white font-sans text-xs rounded">
                               {industry}
                             </span>
                           ))}
-                          {member.industries.length > 2 && (
+                          {(member.industries || []).length > 2 && (
                             <span className="px-2 py-1 bg-white/20 text-white font-sans text-xs rounded">
-                              +{member.industries.length - 2}
+                              +{(member.industries || []).length - 2}
                             </span>
                           )}
                         </div>
