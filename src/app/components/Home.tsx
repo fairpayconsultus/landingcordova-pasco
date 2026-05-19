@@ -162,6 +162,7 @@ export function Home() {
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [heroImageLoaded, setHeroImageLoaded] = useState(false);
   const [paginaConfig, setPaginaConfig] = useState<PaginaConfig | null>(null);
 
   useEffect(() => {
@@ -212,6 +213,7 @@ export function Home() {
                   src={getImageUrl(heroSlides[currentImageIndex]?.image)}
                   alt="Background"
                   className="w-full h-full object-cover"
+                  onLoadComplete={() => setHeroImageLoaded(true)}
                 />
               </motion.div>
             )}
@@ -221,6 +223,18 @@ export function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50" />
 
         </div>
+
+        {/* Loading overlay */}
+        {!heroImageLoaded && (
+          <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 pointer-events-none">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            >
+              <div className="w-12 h-12 border-4 border-gray-200 border-t-[#e65649] rounded-full"></div>
+            </motion.div>
+          </div>
+        )}
 
         {/* Decorative Elements - Hidden on small screens */}
         <div className="absolute inset-0 pointer-events-none hidden md:block">

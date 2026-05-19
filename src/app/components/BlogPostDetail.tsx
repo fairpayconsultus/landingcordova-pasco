@@ -11,6 +11,7 @@ export default function BlogPostDetail() {
   const { slug } = useParams();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -26,6 +27,13 @@ export default function BlogPostDetail() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            className="mb-6 inline-block"
+          >
+            <div className="w-12 h-12 border-4 border-gray-200 border-t-[#e65649] rounded-full"></div>
+          </motion.div>
           <p className="font-sans text-gray-600">Cargando artículo...</p>
         </div>
       </div>
@@ -77,6 +85,7 @@ export default function BlogPostDetail() {
               src={getImageUrl(post.image) || '/blog.png'}
               alt={post.title}
               className="w-full h-full object-cover"
+              onLoadComplete={() => setImageLoaded(true)}
             />
           </motion.div>
           <motion.div
@@ -106,8 +115,25 @@ export default function BlogPostDetail() {
         </div>
       </section>
 
+      {/* Loading overlay */}
+      {!imageLoaded && (
+        <div className="fixed inset-0 bg-white/90 flex items-center justify-center z-50 pointer-events-none">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          >
+            <div className="w-12 h-12 border-4 border-gray-200 border-t-[#e65649] rounded-full"></div>
+          </motion.div>
+        </div>
+      )}
+
       {/* Metadata */}
-      <section className="py-8 bg-[#F8F9FA] border-b border-gray-200">
+      <motion.section
+        className="py-8 bg-[#F8F9FA] border-b border-gray-200"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: imageLoaded ? 1 : 0 }}
+        transition={{ duration: 0.6 }}
+      >
         <div className="max-w-4xl mx-auto px-6 lg:px-12">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -147,10 +173,15 @@ export default function BlogPostDetail() {
             </Link>
           </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Contenido */}
-      <section className="py-20 bg-white">
+      <motion.section
+        className="py-20 bg-white"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: imageLoaded ? 1 : 0 }}
+        transition={{ duration: 0.6 }}
+      >
         <article className="max-w-4xl mx-auto px-6 lg:px-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -176,7 +207,7 @@ export default function BlogPostDetail() {
             </ReactMarkdown>
           </motion.div>
         </article>
-      </section>
+      </motion.section>
 
       {/* CTA */}
       <section className="py-20 bg-[#F8F9FA]">
