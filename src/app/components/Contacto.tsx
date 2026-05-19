@@ -118,7 +118,7 @@ export function Contacto() {
                   </div>
                   <div>
                     <h4 className="font-sans font-semibold text-[#000000] mb-1">Teléfono</h4>
-                    <p className="font-sans text-[#2D2D3D] font-normal">966170074</p>
+                    <p className="font-sans text-[#2D2D3D] font-normal">983861874</p>
                   </div>
                 </div>
 

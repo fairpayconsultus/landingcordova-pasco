@@ -153,7 +153,7 @@ export function RootLayout() {
                 </div>
                 <div className="flex items-center gap-3">
                   <Phone className="w-4 h-4 text-[#e65649] flex-shrink-0" />
-                  <span>966170074</span>
+                  <span>983861874</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <Mail className="w-4 h-4 text-[#e65649] flex-shrink-0" />
