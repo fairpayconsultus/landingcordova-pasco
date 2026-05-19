@@ -458,7 +458,7 @@ export function Sectores() {
                     initial={{ opacity: 0, x: index % 2 === 0 ? -200 : 200 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 1, delay: index * 0.2, type: "spring" }}
+                    transition={{ duration: 1, delay: index * 0.08, type: "spring" }}
                     className={`relative z-20 ${index % 2 === 1 ? 'lg:col-start-2' : ''}`}
                   >
                     <div className="relative">
@@ -477,7 +477,7 @@ export function Sectores() {
                         initial={{ scale: 0, rotate: -180 }}
                         whileInView={{ scale: 1, rotate: 0 }}
                         viewport={{ once: true }}
-                        transition={{ delay: index * 0.4, duration: 0.6, type: "spring" }}
+                        transition={{ delay: index * 0.1, duration: 0.6, type: "spring" }}
                         className="absolute -top-4 -right-4 bg-white shadow-2xl rounded-2xl p-4 border-2 border-[#e65649]/20 backdrop-blur-sm"
                       >
                         <div className="flex items-center gap-3">
@@ -507,7 +507,7 @@ export function Sectores() {
                     initial={{ opacity: 0, x: index % 2 === 0 ? 200 : -200 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 1, delay: index * 0.3, type: "spring" }}
+                    transition={{ duration: 1, delay: index * 0.1, type: "spring" }}
                     className={`relative z-30 ${index % 2 === 0 ? 'lg:left-1/2 lg:-translate-x-8' : 'lg:right-1/2 lg:translate-x-8'} lg:absolute lg:top-1/2 lg:transform lg:-translate-y-1/2 w-full lg:w-auto lg:max-w-lg`}
                   >
                     <div className="bg-white/95 rounded-3xl shadow-2xl p-6 md:p-8 lg:p-12 border-2 border-[#e65649]/10 hover:shadow-3xl hover:border-[#e65649]/30 transition-all duration-500 backdrop-blur-sm relative overflow-hidden">
