@@ -172,7 +172,6 @@ function SectorDetail() {
   const { sectorSlug } = useParams();
   const [sector, setSector] = useState<StrapiSector | null>(null);
   const [loading, setLoading] = useState(true);
-  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     if (!sectorSlug) return;
@@ -226,22 +225,9 @@ function SectorDetail() {
             alt={sector.name}
             className="w-full h-full object-cover"
             style={{ objectPosition: 'center 70%' }}
-            onLoadComplete={() => setImageLoaded(true)}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/80"></div>
         </div>
-
-        {/* Loading overlay */}
-        {!imageLoaded && (
-          <div className="fixed inset-0 bg-white/90 flex items-center justify-center z-50 pointer-events-none">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            >
-              <div className="w-12 h-12 border-4 border-gray-200 border-t-[#e65649] rounded-full"></div>
-            </motion.div>
-          </div>
-        )}
 
         <div className="relative z-10 h-full flex items-center justify-center">
           <div className="text-center px-6 max-w-4xl mx-auto">
@@ -353,7 +339,6 @@ export function Sectores() {
   const [paginaConfig, setPaginaConfig] = useState<PaginaConfig | null>(null);
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [loading, setLoading] = useState(true);
-  const [bannerImageLoaded, setBannerImageLoaded] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -389,7 +374,6 @@ export function Sectores() {
                 src={getImageUrl(paginaConfig.bannerSectores)}
                 alt="Sectores Industriales"
                 className="w-full h-full object-cover"
-                onLoadComplete={() => setBannerImageLoaded(true)}
               />
             )}
           </motion.div>
@@ -400,18 +384,6 @@ export function Sectores() {
             className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50"
           />
         </div>
-
-        {/* Loading overlay */}
-        {!bannerImageLoaded && paginaConfig?.bannerSectores && (
-          <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 pointer-events-none">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            >
-              <div className="w-12 h-12 border-4 border-gray-200 border-t-[#e65649] rounded-full"></div>
-            </motion.div>
-          </div>
-        )}
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 text-center">
           <motion.div

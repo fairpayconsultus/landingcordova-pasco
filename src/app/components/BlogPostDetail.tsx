@@ -11,7 +11,6 @@ export default function BlogPostDetail() {
   const { slug } = useParams();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
-  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -85,7 +84,6 @@ export default function BlogPostDetail() {
               src={getImageUrl(post.image) || '/blog.png'}
               alt={post.title}
               className="w-full h-full object-cover"
-              onLoadComplete={() => setImageLoaded(true)}
             />
           </motion.div>
           <motion.div
@@ -115,23 +113,12 @@ export default function BlogPostDetail() {
         </div>
       </section>
 
-      {/* Loading overlay */}
-      {!imageLoaded && (
-        <div className="fixed inset-0 bg-white/90 flex items-center justify-center z-50 pointer-events-none">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          >
-            <div className="w-12 h-12 border-4 border-gray-200 border-t-[#e65649] rounded-full"></div>
-          </motion.div>
-        </div>
-      )}
-
       {/* Metadata */}
       <motion.section
         className="py-8 bg-[#F8F9FA] border-b border-gray-200"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: imageLoaded ? 1 : 0 }}
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
         <div className="max-w-4xl mx-auto px-6 lg:px-12">
@@ -178,8 +165,9 @@ export default function BlogPostDetail() {
       {/* Contenido */}
       <motion.section
         className="py-20 bg-white"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: imageLoaded ? 1 : 0 }}
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
         <article className="max-w-4xl mx-auto px-6 lg:px-12">
