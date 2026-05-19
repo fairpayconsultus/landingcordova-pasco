@@ -316,19 +316,6 @@ export default function Blog() {
             ))}
           </div>
 
-          {/* Load More Button */}
-          <motion.div
-            initial={{ opacity: 0, x: 100 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.6, duration: 0.8 }}
-            className="text-center mt-12"
-          >
-            <button className="inline-flex items-center gap-2 px-10 py-4 bg-[#000000] text-white font-sans font-semibold hover:bg-[#e65649] transition-colors">
-              Cargar más artículos
-              <ArrowRight className="w-5 h-5" />
-            </button>
-          </motion.div>
         </div>
       </section>
 

@@ -340,8 +340,8 @@ export default function Abogados() {
 
   const stats = {
     socios: teamMembers.filter(m => m.category === 'socio').length,
-    consultores: 0,
-    asociados: teamMembers.filter(m => m.category && m.category.includes('asociado')).length,
+    consultores: teamMembers.filter(m => m.category === 'consultor').length,
+    asociados: teamMembers.filter(m => m.category === 'asociado').length,
   };
 
   return (
