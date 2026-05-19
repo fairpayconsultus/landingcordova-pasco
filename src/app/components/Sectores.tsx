@@ -455,10 +455,10 @@ export function Sectores() {
                   
                   {/* Image Section - Overlapping */}
                   <motion.div
-                    initial={{ opacity: 0, x: index % 2 === 0 ? -200 : 200 }}
+                    initial={{ opacity: 0, x: index % 2 === 0 ? -100 : 100 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 1, delay: index * 0.08, type: "spring" }}
+                    transition={{ duration: 0.6 }}
                     className={`relative z-20 ${index % 2 === 1 ? 'lg:col-start-2' : ''}`}
                   >
                     <div className="relative">
@@ -474,10 +474,10 @@ export function Sectores() {
                       {/* Floating Badge */}
                       {sector.icon && (
                       <motion.div
-                        initial={{ scale: 0, rotate: -180 }}
-                        whileInView={{ scale: 1, rotate: 0 }}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
-                        transition={{ delay: index * 0.1, duration: 0.6, type: "spring" }}
+                        transition={{ duration: 0.4 }}
                         className="absolute -top-4 -right-4 bg-white shadow-2xl rounded-2xl p-4 border-2 border-[#e65649]/20 backdrop-blur-sm"
                       >
                         <div className="flex items-center gap-3">
@@ -504,10 +504,10 @@ export function Sectores() {
 
                   {/* Content Section - Overlapping */}
                   <motion.div
-                    initial={{ opacity: 0, x: index % 2 === 0 ? 200 : -200 }}
+                    initial={{ opacity: 0, x: index % 2 === 0 ? 100 : -100 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 1, delay: index * 0.1, type: "spring" }}
+                    transition={{ duration: 0.6, delay: 0.1 }}
                     className={`relative z-30 ${index % 2 === 0 ? 'lg:left-1/2 lg:-translate-x-8' : 'lg:right-1/2 lg:translate-x-8'} lg:absolute lg:top-1/2 lg:transform lg:-translate-y-1/2 w-full lg:w-auto lg:max-w-lg`}
                   >
                     <div className="bg-white/95 rounded-3xl shadow-2xl p-6 md:p-8 lg:p-12 border-2 border-[#e65649]/10 hover:shadow-3xl hover:border-[#e65649]/30 transition-all duration-500 backdrop-blur-sm relative overflow-hidden">
@@ -516,56 +516,35 @@ export function Sectores() {
                       <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-[#000000]/5 to-transparent rounded-tr-3xl"></div>
                       
                       {/* Content Header */}
-                      <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.5, duration: 0.6 }}
-                        className="relative z-10"
-                      >
+                      <div className="relative z-10">
                         <h3 className="font-display text-2xl md:text-3xl lg:text-4xl font-bold text-[#000000] mb-3 drop-shadow-sm">
                           {sector.name}
                         </h3>
                         <div className="w-20 h-1.5 bg-gradient-to-r from-[#e65649] via-[#e65649]/70 to-[#e65649]/30 rounded-full mb-6 shadow-sm"></div>
-                      </motion.div>
+                      </div>
 
                       {/* Description */}
-                      <motion.p
-                        initial={{ opacity: 0, x: index % 2 === 0 ? 50 : -50 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.6, duration: 0.8 }}
-                        className="font-sans text-base md:text-lg text-[#2D2D3D] leading-relaxed mb-8"
-                      >
+                      <p className="font-sans text-base md:text-lg text-[#2D2D3D] leading-relaxed mb-8">
                         {sector.description || sector.content}
-                      </motion.p>
+                      </p>
 
                       {/* Services */}
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.7, duration: 0.6 }}
-                      >
+                      <div>
                         <h4 className="font-sans text-xs md:text-sm font-bold text-[#000000] mb-4 uppercase tracking-wider">
                           Servicios Especializados:
                         </h4>
                         <div className="grid grid-cols-1 gap-3">
                           {(sector.services || []).slice(0, 4).map((service, idx) => (
-                            <motion.div
+                            <div
                               key={idx}
-                              initial={{ opacity: 0, x: -20 }}
-                              whileInView={{ opacity: 1, x: 0 }}
-                              viewport={{ once: true }}
-                              transition={{ delay: index * 0.8 + idx * 0.1, duration: 0.4 }}
                               className="flex items-start gap-3"
                             >
                               <div className="w-2 h-2 bg-[#e65649] rounded-full mt-2 flex-shrink-0"></div>
                               <span className="font-sans text-sm md:text-base text-[#2D2D3D]">{service}</span>
-                            </motion.div>
+                            </div>
                           ))}
                         </div>
-                      </motion.div>
+                      </div>
 
                     </div>
                   </motion.div>
