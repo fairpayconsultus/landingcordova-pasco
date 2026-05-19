@@ -222,28 +222,6 @@ export function Home() {
 
         </div>
 
-        {/* Decorative Elements - Hidden on small screens */}
-        <div className="absolute inset-0 pointer-events-none hidden md:block">
-          <motion.div
-            initial={{ opacity: 0, x: -100 }}
-            animate={{ opacity: 0.1, x: 0 }}
-            transition={{ duration: 1, delay: 0.3 }}
-            className="absolute top-1/4 left-0 w-32 md:w-48 lg:w-64 h-1 bg-gradient-to-r from-transparent via-[#e65649] to-transparent"
-          />
-          <motion.div
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 0.1, x: 0 }}
-            transition={{ duration: 1, delay: 0.5 }}
-            className="absolute top-1/3 right-0 w-48 md:w-64 lg:w-96 h-1 bg-gradient-to-r from-transparent via-white to-transparent"
-          />
-          <motion.div
-            initial={{ opacity: 0, x: -100 }}
-            animate={{ opacity: 0.1, x: 0 }}
-            transition={{ duration: 1, delay: 0.7 }}
-            className="absolute bottom-1/3 left-0 w-40 md:w-60 lg:w-80 h-1 bg-gradient-to-r from-transparent via-[#e65649] to-transparent"
-          />
-        </div>
-
         {/* Main Content */}
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
           <div className="text-center">
