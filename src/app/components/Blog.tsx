@@ -101,7 +101,7 @@ export default function Blog() {
   }, []);
 
   const categories = ['Todos', 'Energia', 'Laboral', 'Arbitraje', 'Corporativo', 'Administrativo'];
-  const featuredPost = blogPosts.find(post => post.featured);
+  const featuredPosts = blogPosts.filter(post => post.featured).slice(0, 3);
   const regularPosts = blogPosts.filter(post => !post.featured);
 
   return (
@@ -147,74 +147,88 @@ export default function Blog() {
         </div>
       </section>
 
-      {/* Featured Post */}
-      {featuredPost && (
+      {/* Featured Posts Grid */}
+      {featuredPosts.length > 0 && (
         <section className="py-16 bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-6 lg:px-12">
             <motion.div
-              initial={{ opacity: 0, x: 100 }}
+              initial={{ opacity: 0, x: -100 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-center mb-12"
             >
-              <div className="text-center mb-8">
-                <span className="inline-block px-4 py-2 bg-[#e65649] text-white font-sans text-sm font-semibold rounded-full mb-4">
-                  Artículo Destacado
-                </span>
-                <h2 className="font-display text-3xl lg:text-4xl font-bold text-[#000000] mb-4">
-                  {featuredPost.title}
-                </h2>
-              </div>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div className="aspect-[4/3] overflow-hidden rounded-lg">
-                  <ImageWithFallback
-                    src={getImageUrl(featuredPost.image) || '/blog.png'}
-                    alt={featuredPost.title}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
+              <span className="inline-block px-4 py-2 bg-[#e65649] text-white font-sans text-sm font-semibold rounded-full mb-4">
+                Artículos Destacados
+              </span>
+              <h2 className="font-display text-3xl lg:text-4xl font-bold text-[#000000]">
+                Contenido Principal
+              </h2>
+            </motion.div>
 
-                <div>
-                  <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
-                    {featuredPost.author && (
-                    <span className="flex items-center gap-1">
-                      <User className="w-4 h-4" />
-                      {featuredPost.author.name}
-                    </span>
-                    )}
-                    {featuredPost.publishedDate && (
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      {new Date(featuredPost.publishedDate).toLocaleDateString('es-PE', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric'
-                      })}
-                    </span>
-                    )}
-                    {featuredPost.readTime && (
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {featuredPost.readTime} min
-                    </span>
-                    )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredPosts.map((post, index) => (
+                <motion.article
+                  key={post.slug}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.15, duration: 0.8 }}
+                  className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow border border-gray-100"
+                >
+                  <div className="aspect-[16/9] overflow-hidden">
+                    <ImageWithFallback
+                      src={getImageUrl(post.image) || '/blog.png'}
+                      alt={post.title}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    />
                   </div>
 
-                  <p className="font-sans text-lg text-[#2D2D3D] leading-relaxed mb-6 font-normal text-justify">
-                    {featuredPost.excerpt}
-                  </p>
+                  <div className="p-6">
+                    <span className="inline-block px-3 py-1 bg-[#e65649]/10 text-[#e65649] font-sans text-xs font-semibold rounded-full mb-3">
+                      {CATEGORY_LABELS[post.category as any] || post.category}
+                    </span>
 
-                  <Link
-                    to={`/blog/${featuredPost.slug}`}
-                    className="inline-flex items-center gap-2 text-[#e65649] font-sans font-semibold hover:gap-4 transition-all"
-                  >
-                    Leer artículo completo
-                    <ArrowRight className="w-5 h-5" />
-                  </Link>
-                </div>
-              </div>
-            </motion.div>
+                    <h3 className="font-display text-xl font-bold text-[#000000] mb-3 leading-tight">
+                      <Link to={`/blog/${post.slug}`} className="hover:text-[#e65649] transition-colors">
+                        {post.title}
+                      </Link>
+                    </h3>
+
+                    <p className="font-sans text-[#2D2D3D] leading-relaxed mb-4 font-normal text-sm">
+                      {post.excerpt}
+                    </p>
+
+                    <div className="flex items-center justify-between text-xs text-gray-600">
+                      <div className="flex items-center gap-3">
+                        {post.author && (
+                        <span className="flex items-center gap-1">
+                          <User className="w-3 h-3" />
+                          {post.author.name}
+                        </span>
+                        )}
+                        {post.publishedDate && (
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          {new Date(post.publishedDate).toLocaleDateString('es-PE', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: '2-digit'
+                          })}
+                        </span>
+                        )}
+                      </div>
+                      {post.readTime && (
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {post.readTime} min
+                      </span>
+                      )}
+                    </div>
+                  </div>
+                </motion.article>
+              ))}
+            </div>
           </div>
         </section>
       )}

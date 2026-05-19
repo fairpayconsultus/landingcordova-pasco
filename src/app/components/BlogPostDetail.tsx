@@ -177,8 +177,8 @@ export default function BlogPostDetail() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="prose prose-lg max-w-none
               prose-headings:font-display prose-headings:text-[#000000]
-              prose-h1:text-4xl prose-h1:mb-8 prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-8 prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-6
-              prose-p:font-sans prose-p:text-[#2D2D3D] prose-p:leading-relaxed prose-p:mb-6 prose-p:mt-2
+              prose-h1:text-4xl prose-h1:mb-12 prose-h2:text-3xl prose-h2:mt-16 prose-h2:mb-10 prose-h3:text-2xl prose-h3:mt-10 prose-h3:mb-8
+              prose-p:font-sans prose-p:text-[#2D2D3D] prose-p:leading-relaxed prose-p:mb-8 prose-p:mt-4
               prose-a:text-[#e65649] hover:prose-a:text-[#8B1810]
               prose-strong:text-[#000000] prose-strong:font-semibold
               prose-em:text-[#2D2D3D]
@@ -190,7 +190,16 @@ export default function BlogPostDetail() {
               prose-img:rounded-lg prose-img:shadow-lg
             "
           >
-            <ReactMarkdown>
+            <ReactMarkdown
+              components={{
+                p: ({ children }) => <p className="mb-6 last:mb-0">{children}</p>,
+                h2: ({ children }) => <h2 className="mt-12 mb-6">{children}</h2>,
+                h3: ({ children }) => <h3 className="mt-8 mb-4">{children}</h3>,
+                ul: ({ children }) => <ul className="list-disc list-inside mb-6">{children}</ul>,
+                ol: ({ children }) => <ol className="list-decimal list-inside mb-6">{children}</ol>,
+                li: ({ children }) => <li className="mb-2">{children}</li>,
+              }}
+            >
               {post.content || ''}
             </ReactMarkdown>
           </motion.div>
