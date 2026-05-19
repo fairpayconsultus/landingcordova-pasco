@@ -36,7 +36,7 @@ export interface TeamMember {
   experience: string | null;
   email: string | null;
   phone: string | null;
-  category: 'socio' | 'asociado' | 'asociada' | 'consultor';
+  category: 'socio' | 'asociado' | 'consultor';
   education: string[] | null;
   highlights: string[] | null;
   practiceAreas: string[] | null;

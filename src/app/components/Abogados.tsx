@@ -6,167 +6,27 @@ import { Search, Briefcase, GraduationCap, Filter, ArrowLeft, Mail, Phone, Calen
 import { fetchStrapiList, getImageUrl, fetchPaginaConfig } from '../../lib/strapi';
 import type { TeamMember, PaginaConfig } from '../../lib/strapi-types';
 
-const TEAM_MEMBERS_LEGACY = [
-  {
-    id: 1,
-    name: 'Omar E. Córdova Paredes',
-    role: 'Socio Director',
-    category: 'socio',
-    image: '/Omar.png',
-    experience: '12+ años de experiencia',
-    email: 'ocordova@cp-asociados.pe',
-    phone: '+51 1 234 5678',
-    education: [
-      'Maestría en Relaciones Industriales',
-      'Maestría en Gestión y Políticas Públicas',
-      'Abogado por la Universidad Nacional Mayor de San Marcos',
-      'Docente Universitario en UPC'
-    ],
-    languages: ['Español', 'Inglés'],
-    practiceAreas: ['Derecho Administrativo', 'Energía', 'Control Gubernamental'],
-    industries: ['Energía', 'Oil & Gas', 'Sector Público'],
-    bio: 'Especialista en Derecho Administrativo con vasta experiencia en el sector energético. Ha sido consultor en proyectos de gran envergadura y cuenta con sólida formación académica y profesional.',
-    achievements: [
-      'Experiencia en OSINERGMIN',
-      'Más de 50 casos de alta complejidad',
-      'Publicaciones académicas en revistas especializadas',
-      'Ponencias en congresos nacionales e internacionales'
-    ]
-  },
-  {
-    id: 2,
-    name: 'Jorge Pasco',
-    role: 'Socio',
-    category: 'socio',
-    image: '/Jorge Pasco.jpeg',
-    experience: '10+ años de experiencia',
-    email: 'jpasco@cp-asociados.pe',
-    phone: '+51 1 234 5679',
-    education: [
-      'Abogado por la Pontificia Universidad Católica del Perú',
-      'Maestría en Derecho de la Empresa',
-      'Especialización en Contrataciones del Estado'
-    ],
-    languages: ['Español', 'Inglés', 'Portugués'],
-    practiceAreas: ['Derecho Administrativo', 'Defensa de Funcionarios', 'Gestión Contractual'],
-    industries: ['Sector Público', 'Infraestructura', 'APPs'],
-    bio: 'Experto en defensa de funcionarios públicos y gestión contractual. Su experiencia en el sector público le permite ofrecer un enfoque integral y estratégico a cada caso.',
-    achievements: [
-      'Experiencia en entidades del Estado',
-      'Más de 30 procedimientos sancionadores defendidos',
-      'Especialista en normativa de contrataciones',
-      'Consultor en proyectos de infraestructura'
-    ]
-  },
-  {
-    id: 3,
-    name: 'Alejandro Castillo',
-    role: 'Socio',
-    category: 'socio',
-    image: '/Alejandro Castillo.jpeg',
-    experience: '8+ años de experiencia en Arbitraje',
-    email: 'acastillo@cp-asociados.pe',
-    phone: '+51 1 234 5680',
-    education: [
-      'Abogado por la Universidad Nacional Mayor de San Marcos',
-      'Maestría en Derecho Arbitral',
-      'Especialización en Contratos Internacionales'
-    ],
-    languages: ['Español', 'Inglés'],
-    practiceAreas: ['Arbitraje', 'Contratos', 'Resolución de Controversias'],
-    industries: ['Construcción', 'Financiero', 'Corporativo'],
-    bio: 'Árbitro especializado con amplia experiencia en resolución de controversias comerciales y de construcción. Su conocimiento técnico y su visión estratégica lo posicionan como un referente en materia arbitral.',
-    achievements: [
-      'Árbitro en el Centro de Arbitraje de la Cámara de Lima',
-      'Más de 40 laudos arbitrales emitidos',
-      'Especialista en arbitrajes de construcción',
-      'Consultor en estructuras contractuales complejas'
-    ]
-  },
-  {
-    id: 4,
-    name: 'Diego Larico',
-    role: 'Asociado Senior',
-    category: 'asociado',
-    image: '/Diego Larico.jpeg',
-    experience: '7+ años de experiencia en Derecho Corporativo',
-    email: 'dlarico@cp-asociados.pe',
-    phone: '+51 1 234 5681',
-    education: [
-      'Abogado por la Universidad del Pacífico',
-      'Maestría en Derecho de los Negocios',
-      'Diplomado en Fusiones y Adquisiciones'
-    ],
-    languages: ['Español', 'Inglés'],
-    practiceAreas: ['Derecho Corporativo', 'M&A', 'Due Diligence'],
-    industries: ['Corporativo', 'Financiero', 'Startups'],
-    bio: 'Especialista en derecho corporativo con experiencia en transacciones M&A y reestructuraciones. Su formación en negocios le permite ofrecer asesoría integral a empresas de diversos sectores.',
-    achievements: [
-      'Experiencia en estudios de primer nivel',
-      'Participación en más de 20 transacciones M&A',
-      'Especialista en due diligence legal',
-      'Asesor en reestructuraciones corporativas'
-    ]
-  },
-  {
-    id: 5,
-    name: 'Mayra Ormea',
-    role: 'Asociada Senior',
-    category: 'asociada',
-    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600',
-    experience: '10+ años de experiencia en Derecho Laboral',
-    email: 'mormea@cp-asociados.pe',
-    phone: '+51 1 234 5682',
-    education: [
-      'Abogada por la Universidad de Lima (magna cum laude)',
-      'Especialización en Derecho Laboral Corporativo'
-    ],
-    languages: ['Español', 'Inglés'],
-    practiceAreas: ['Derecho Laboral', 'Relaciones Laborales', 'Compliance Laboral'],
-    industries: ['Retail', 'Manufactura', 'Servicios'],
-    bio: 'Experta en derecho laboral corporativo con amplia experiencia en la gestión de relaciones laborales y compliance. Su enfoque preventivo y estratégico ha beneficiado a numerosas empresas.',
-    achievements: [
-      'Experiencia en estudios especializados',
-      'Más de 100 procesos laborales gestionados',
-      'Especialista en negociaciones colectivas',
-      'Consultora en programas de compliance laboral'
-    ]
-  },
-];
 
-const practiceAreas = [
-  'Todas',
-  'Derecho Administrativo',
-  'Arbitraje',
-  'Contratos',
-  'Derecho Corporativo',
-  'Derecho Laboral',
-  'Energía',
-  'Control Gubernamental',
-  'Defensa de Funcionarios',
-  'Gestión Contractual',
-  'Resolución de Controversias',
-  'M&A',
-  'Due Diligence',
-  'Relaciones Laborales',
-  'Compliance Laboral',
-];
+// Funciones para extraer dinámicamente los valores únicos
+const extractUniquePracticeAreas = (members: TeamMember[]): string[] => {
+  const areas = new Set<string>();
+  members.forEach(member => {
+    if (member.practiceAreas) {
+      member.practiceAreas.forEach(area => areas.add(area));
+    }
+  });
+  return ['Todas', ...Array.from(areas).sort()];
+};
 
-const industries = [
-  'Todas',
-  'Energía',
-  'Oil & Gas',
-  'Sector Público',
-  'Infraestructura',
-  'APPs',
-  'Construcción',
-  'Financiero',
-  'Corporativo',
-  'Startups',
-  'Retail',
-  'Manufactura',
-  'Servicios',
-];
+const extractUniqueIndustries = (members: TeamMember[]): string[] => {
+  const industries = new Set<string>();
+  members.forEach(member => {
+    if (member.industries) {
+      member.industries.forEach(industry => industries.add(industry));
+    }
+  });
+  return ['Todas', ...Array.from(industries).sort()];
+};
 
 // Componente para vista individual de abogado
 function AbogadoProfile() {
@@ -437,6 +297,8 @@ function AbogadoProfile() {
 export default function Abogados() {
   const { slug } = useParams();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [practiceAreasList, setPracticeAreasList] = useState<string[]>(['Todas']);
+  const [industriesList, setIndustriesList] = useState<string[]>(['Todas']);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPracticeArea, setSelectedPracticeArea] = useState('Todas');
@@ -451,6 +313,8 @@ export default function Abogados() {
     ])
       .then(([members, config]) => {
         setTeamMembers(members);
+        setPracticeAreasList(extractUniquePracticeAreas(members));
+        setIndustriesList(extractUniqueIndustries(members));
         setPaginaConfig(config);
       })
       .catch(console.error)
@@ -566,7 +430,7 @@ export default function Abogados() {
                     placeholder="Nombre o cargo..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-600 bg-white/10 text-white placeholder-gray-300 rounded-lg font-sans focus:outline-none focus:border-white focus:ring-1 focus:ring-white"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-600 bg-gray-900 text-white placeholder-gray-400 rounded-lg font-sans focus:outline-none focus:border-white focus:ring-1 focus:ring-white"
                   />
                 </div>
               </div>
@@ -579,10 +443,10 @@ export default function Abogados() {
                 <select
                   value={selectedPracticeArea}
                   onChange={(e) => setSelectedPracticeArea(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-600 bg-white/10 text-white rounded-lg font-sans focus:outline-none focus:border-white focus:ring-1 focus:ring-white"
+                  className="w-full px-4 py-3 border border-gray-600 bg-gray-900 text-white rounded-lg font-sans focus:outline-none focus:border-white focus:ring-1 focus:ring-white"
                 >
-                  {practiceAreas.map(area => (
-                    <option key={area} value={area}>{area}</option>
+                  {practiceAreasList.map(area => (
+                    <option key={area} value={area} className="bg-gray-900 text-white">{area}</option>
                   ))}
                 </select>
               </div>
@@ -595,10 +459,10 @@ export default function Abogados() {
                 <select
                   value={selectedIndustry}
                   onChange={(e) => setSelectedIndustry(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-600 bg-white/10 text-white rounded-lg font-sans focus:outline-none focus:border-white focus:ring-1 focus:ring-white"
+                  className="w-full px-4 py-3 border border-gray-600 bg-gray-900 text-white rounded-lg font-sans focus:outline-none focus:border-white focus:ring-1 focus:ring-white"
                 >
-                  {industries.map(industry => (
-                    <option key={industry} value={industry}>{industry}</option>
+                  {industriesList.map(industry => (
+                    <option key={industry} value={industry} className="bg-gray-900 text-white">{industry}</option>
                   ))}
                 </select>
               </div>
@@ -611,12 +475,12 @@ export default function Abogados() {
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-600 bg-white/10 text-white rounded-lg font-sans focus:outline-none focus:border-white focus:ring-1 focus:ring-white"
+                  className="w-full px-4 py-3 border border-gray-600 bg-gray-900 text-white rounded-lg font-sans focus:outline-none focus:border-white focus:ring-1 focus:ring-white"
                 >
-                  <option value="Todos">Todos</option>
-                  <option value="socio">Socios</option>
-                  <option value="asociado">Asociados</option>
-                  <option value="asociada">Asociadas</option>
+                  <option value="Todos" className="bg-gray-900 text-white">Todos</option>
+                  <option value="socio" className="bg-gray-900 text-white">Socios</option>
+                  <option value="asociado" className="bg-gray-900 text-white">Asociados</option>
+                  <option value="consultor" className="bg-gray-900 text-white">Consultores</option>
                 </select>
               </div>
             </div>

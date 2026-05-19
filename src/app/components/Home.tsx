@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { AbogadosSearch } from './AbogadosSearch';
 import { fetchStrapiList, getImageUrl, fetchPaginaConfig } from '../../lib/strapi';
 import { CATEGORY_LABELS } from '../../lib/strapi-types';
-import type { TeamMember, HeroSlide, BlogPost, PaginaConfig } from '../../lib/strapi-types';
+import type { TeamMember, HeroSlide, BlogPost, PaginaConfig, Sector } from '../../lib/strapi-types';
 
 // Datos LEGACY para fallback
 const TEAM_MEMBERS_LEGACY = [
@@ -159,6 +159,7 @@ export function Home() {
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [featuredPosts, setFeaturedPosts] = useState<BlogPost[]>([]);
+  const [sectors, setSectors] = useState<Sector[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [paginaConfig, setPaginaConfig] = useState<PaginaConfig | null>(null);
@@ -168,12 +169,14 @@ export function Home() {
       fetchStrapiList<HeroSlide>('/hero-slides', 'filters[isActive][$eq]=true&sort=order:asc'),
       fetchStrapiList<TeamMember>('/team-members', 'sort=order:asc&pagination[limit]=3'),
       fetchStrapiList<BlogPost>('/blog-posts', 'filters[featured][$eq]=true&sort=publishedDate:desc&pagination[limit]=3'),
+      fetchStrapiList<Sector>('/sectors', 'sort=order:asc'),
       fetchPaginaConfig(),
     ])
-      .then(([slides, members, posts, config]) => {
+      .then(([slides, members, posts, sectorsList, config]) => {
         setHeroSlides(slides);
         setTeamMembers(members);
         setFeaturedPosts(posts);
+        setSectors(sectorsList);
         setPaginaConfig(config);
       })
       .catch(console.error)
@@ -312,24 +315,21 @@ export function Home() {
               transition={{ duration: 0.8, delay: 1 }}
               className="flex flex-wrap justify-center gap-1.5 px-4"
             >
-              {['Energía', 'Oil & Gas', 'Agroindustria', 'Sector Público'].map((sector, index) => {
-                const sectorSlug = sector.toLowerCase().replace(/\s+&\s+/g, '-').replace(/\s+/g, '-');
-                return (
+              {sectors.map((sector, index) => (
                 <motion.div
-                  key={sector}
+                  key={sector.slug}
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 1.2 + index * 0.1 }}
                 >
                   <Link
-                    to={`/sectores#sector-${sectorSlug}`}
+                    to={`/sectores#sector-${sector.slug}`}
                     className="inline-block px-2 sm:px-3 py-1 bg-white/5 backdrop-blur-sm border border-white/10 text-white/80 font-sans text-xs font-medium hover:bg-[#e65649]/20 hover:border-[#e65649] hover:text-white transition-all"
                   >
-                    {sector}
+                    {sector.name}
                   </Link>
                 </motion.div>
-                );
-              })}
+              ))}
             </motion.div>
 
 
@@ -680,7 +680,7 @@ export function Home() {
             transition={{ duration: 0.8 }}
             className="max-w-4xl mx-auto"
           >
-            {services.map((service, index) => (
+            {services.slice(0, 4).map((service, index) => (
               <motion.div
                 key={service.title}
                 initial={{ opacity: 0, x: index % 2 === 0 ? -100 : 100 }}

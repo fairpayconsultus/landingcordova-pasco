@@ -1,6 +1,7 @@
 import type { PaginaConfig } from './strapi-types';
 
-const BASE = 'https://backendcordova-pasco-production.up.railway.app';
+//const BASE = 'https://backendcordova-pasco-production.up.railway.app';
+const BASE = 'http://localhost:1337';
 
 export interface StrapiResponse<T> {
   data: T;

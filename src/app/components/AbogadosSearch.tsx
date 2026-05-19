@@ -37,7 +37,7 @@ const categories = [
   'Todos',
   'socio',
   'asociado',
-  'asociada',
+  'consultor',
 ];
 
 export function AbogadosSearch({ onSearch, className = "" }: AbogadosSearchProps) {
@@ -84,7 +84,7 @@ export function AbogadosSearch({ onSearch, className = "" }: AbogadosSearchProps
             <input
               type="text"
               placeholder="Nombre o cargo..."
-              className="w-full pl-10 pr-4 py-3 border border-gray-600 bg-white/10 text-white placeholder-gray-300 rounded-lg font-sans focus:outline-none focus:border-white focus:ring-1 focus:ring-white"
+              className="w-full pl-10 pr-4 py-3 border border-gray-600 bg-gray-900 text-white placeholder-gray-400 rounded-lg font-sans focus:outline-none focus:border-white focus:ring-1 focus:ring-white"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -97,12 +97,12 @@ export function AbogadosSearch({ onSearch, className = "" }: AbogadosSearchProps
             Áreas de Práctica
           </label>
           <select
-            className="w-full px-4 py-3 border border-gray-600 bg-white/10 text-white rounded-lg font-sans focus:outline-none focus:border-white focus:ring-1 focus:ring-white"
+            className="w-full px-4 py-3 border border-gray-600 bg-gray-900 text-white rounded-lg font-sans focus:outline-none focus:border-white focus:ring-1 focus:ring-white"
             value={selectedPracticeArea}
             onChange={(e) => setSelectedPracticeArea(e.target.value)}
           >
             {practiceAreas.map(area => (
-              <option key={area} value={area}>{area}</option>
+              <option key={area} value={area} className="bg-gray-900 text-white">{area}</option>
             ))}
           </select>
         </div>
@@ -113,12 +113,12 @@ export function AbogadosSearch({ onSearch, className = "" }: AbogadosSearchProps
             Industrias
           </label>
           <select
-            className="w-full px-4 py-3 border border-gray-600 bg-white/10 text-white rounded-lg font-sans focus:outline-none focus:border-white focus:ring-1 focus:ring-white"
+            className="w-full px-4 py-3 border border-gray-600 bg-gray-900 text-white rounded-lg font-sans focus:outline-none focus:border-white focus:ring-1 focus:ring-white"
             value={selectedIndustry}
             onChange={(e) => setSelectedIndustry(e.target.value)}
           >
             {industries.map(industry => (
-              <option key={industry} value={industry}>{industry}</option>
+              <option key={industry} value={industry} className="bg-gray-900 text-white">{industry}</option>
             ))}
           </select>
         </div>
@@ -129,14 +129,14 @@ export function AbogadosSearch({ onSearch, className = "" }: AbogadosSearchProps
             Categoría
           </label>
           <select
-            className="w-full px-4 py-3 border border-gray-600 bg-white/10 text-white rounded-lg font-sans focus:outline-none focus:border-white focus:ring-1 focus:ring-white"
+            className="w-full px-4 py-3 border border-gray-600 bg-gray-900 text-white rounded-lg font-sans focus:outline-none focus:border-white focus:ring-1 focus:ring-white"
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
-            <option value="Todos">Todos</option>
-            <option value="socio">Socios</option>
-            <option value="asociado">Asociados</option>
-            <option value="asociada">Asociadas</option>
+            <option value="Todos" className="bg-gray-900 text-white">Todos</option>
+            <option value="socio" className="bg-gray-900 text-white">Socios</option>
+            <option value="asociado" className="bg-gray-900 text-white">Asociados</option>
+            <option value="consultor" className="bg-gray-900 text-white">Consultores</option>
           </select>
         </div>
       </div>
