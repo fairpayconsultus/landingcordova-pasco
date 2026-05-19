@@ -158,15 +158,15 @@ export default function BlogPostDetail() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="prose prose-lg max-w-none
               prose-headings:font-display prose-headings:text-[#000000]
-              prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl
-              prose-p:font-sans prose-p:text-[#2D2D3D] prose-p:leading-relaxed
+              prose-h1:text-4xl prose-h1:mb-6 prose-h2:text-3xl prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-2xl prose-h3:mt-6 prose-h3:mb-3
+              prose-p:font-sans prose-p:text-[#2D2D3D] prose-p:leading-relaxed prose-p:mb-6
               prose-a:text-[#e65649] hover:prose-a:text-[#8B1810]
               prose-strong:text-[#000000] prose-strong:font-semibold
               prose-em:text-[#2D2D3D]
               prose-code:bg-gray-100 prose-code:text-[#e65649] prose-code:px-2 prose-code:py-1 prose-code:rounded
               prose-pre:bg-gray-900 prose-pre:text-white
               prose-blockquote:border-[#e65649] prose-blockquote:text-[#2D2D3D]
-              prose-ul:text-[#2D2D3D] prose-ol:text-[#2D2D3D]
+              prose-ul:text-[#2D2D3D] prose-ul:mb-6 prose-ol:text-[#2D2D3D] prose-ol:mb-6
               prose-li:marker:text-[#e65649]
               prose-img:rounded-lg prose-img:shadow-lg
             "
