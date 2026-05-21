@@ -6,6 +6,7 @@ import WhatsAppButton from "./WhatsAppButton";
 export function RootLayout() {
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -15,6 +16,8 @@ export function RootLayout() {
 
     // Scroll hacia arriba cuando cambia la ruta
     window.scrollTo({ top: 0, behavior: "smooth" });
+    // Cerrar menú móvil cuando navega
+    setIsMobileMenuOpen(false);
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, [location.pathname]);
@@ -91,7 +94,11 @@ export function RootLayout() {
             </nav>
 
             {/* Mobile Menu Button */}
-            <button className="md:hidden p-2 text-[#000000]">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 text-[#000000] hover:text-[#e65649] transition-colors"
+              aria-label="Toggle menu"
+            >
               <svg
                 className="w-6 h-6"
                 fill="none"
@@ -108,6 +115,28 @@ export function RootLayout() {
             </button>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-white border-t border-gray-200">
+            <nav className="flex flex-col">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  onClick={handleNavClick}
+                  className={`px-6 py-4 font-sans text-sm font-medium border-b border-gray-100 transition-colors ${
+                    location.pathname === link.path
+                      ? "text-[#e65649] bg-[#e65649]/5"
+                      : "text-[#000000] hover:text-[#e65649] hover:bg-[#e65649]/5"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+        )}
       </header>
 
       {/* Main Content */}
