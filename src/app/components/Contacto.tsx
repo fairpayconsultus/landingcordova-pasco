@@ -106,8 +106,8 @@ export function Contacto() {
                   <div>
                     <h4 className="font-sans font-semibold text-[#000000] mb-1">Dirección</h4>
                     <p className="font-sans text-[#2D2D3D] font-normal">
-                      Av. Mariscal la mar 326,<br />
-                      Of. 216, Miraflores
+                      Jr. Cruz del sur N°140,<br />
+                     Of. 405 - Santiago de Surco
                     </p>
                   </div>
                 </div>

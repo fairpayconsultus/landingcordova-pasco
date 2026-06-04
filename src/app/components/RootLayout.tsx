@@ -175,9 +175,9 @@ export function RootLayout() {
                 <div className="flex items-start gap-3">
                   <MapPin className="w-4 h-4 mt-0.5 text-[#e65649] flex-shrink-0" />
                   <span>
-                    Av. Mariscal la mar 326,
+                   Jr. Cruz del sur N°140,
                     <br />
-                    Of. 216, Miraflores
+                    Of. 405 - Santiago de Surco
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
