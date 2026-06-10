@@ -303,7 +303,7 @@ export function Contacto() {
       <section className="py-0 bg-white">
         <div className="w-full h-[500px] relative">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3900.8447846728!2d-77.03475!3d-12.11989!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c84c8e27e3e5%3A0x1!2sAv.+Mariscal+La+Mar+316%2C+Miraflores+15074!5e0!3m2!1ses!2spe!4v1234567890"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3900.8447846728!2d-76.9726759!3d-12.0853854!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1sEdificio+TIME%2C+Jr%C3%B3n+Cruz+del+Sur+140%2C+Santiago+de+Surco!5e0!3m2!1ses!2spe!4v1234567890"
             width="100%"
             height="100%"
             style={{

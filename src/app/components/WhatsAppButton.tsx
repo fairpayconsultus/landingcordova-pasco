@@ -23,7 +23,7 @@ export default function WhatsAppButton() {
       </AnimatePresence>
 
       <motion.a
-        href="https://wa.me/51983861874?text=Hola%2C%20necesito%20informaci%C3%B3n%20sobre%20sus%20servicios%20legales"
+        href="https://wa.me/51983861874?text=Gracias%20por%20contactar%20a%20C%C3%B3rdova%20%26%20Pasco%20Asociados.%0A%0ANuestro%20compromiso%20es%20brindarle%20asesor%C3%ADa%20legal%20estrat%C3%A9gica%2C%20eficiente%20y%20personalizada.%20Su%20mensaje%20ha%20sido%20recibido%20correctamente%20y%20ser%C3%A1%20atendido%20por%20uno%20de%20nuestros%20abogados%20a%20la%20brevedad.%0A%0AAgradecemos%20la%20oportunidad%20de%20acompa%C3%B1arlo%20en%20la%20protecci%C3%B3n%20de%20sus%20intereses."
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center justify-center w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
