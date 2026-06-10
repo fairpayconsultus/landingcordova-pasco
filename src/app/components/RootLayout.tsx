@@ -267,8 +267,8 @@ export function RootLayout() {
             {/* Column 4 - CTA */}
             <div className="flex flex-col">
               <div className="flex gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-[#e65649] flex-shrink-0">
-                  <User className="w-5 h-5" />
+                <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center text-[#e65649] flex-shrink-0">
+                  <User className="w-8 h-8" />
                 </div>
               </div>
               <h3 className="font-display font-bold text-white text-lg mb-3 leading-snug">
