@@ -636,16 +636,14 @@ export function Sectores() {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <h2 className="font-display text-4xl lg:text-5xl font-bold text-white mb-6">
-              ¿Su Proyecto Requiere Expertise Técnico-Legal?
+              ¿Qué podemos hacer por ti para generar mayor valor en tu negocio?
             </h2>
-            <p className="font-sans text-xl text-gray-300 mb-10 font-normal">
-              Conversemos sobre cómo nuestra experiencia multidisciplinaria puede agregar valor a su organización.
-            </p>
+            
             <Link
               to="/contacto"
               className="inline-block px-10 py-4 bg-[#e65649] text-white font-sans font-semibold hover:bg-[#8B1810] transition-colors"
             >
-              Contactar al Equipo
+               Conversemos
             </Link>
           </motion.div>
         </div>

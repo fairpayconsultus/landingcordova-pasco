@@ -574,10 +574,10 @@ export default function Abogados() {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.15, duration: 0.8 }}
-                    className="bg-[#000000]/95 backdrop-blur-sm border border-white/20 rounded-xl overflow-hidden hover:shadow-xl hover:bg-[#000000] transition-all cursor-pointer"
+                    className="bg-[#000000]/95 backdrop-blur-sm border border-white/20 rounded-xl overflow-hidden hover:shadow-xl hover:bg-[#000000] transition-all cursor-pointer flex flex-col h-full"
                   >
                     {/* Image */}
-                    <div className="aspect-[4/5] overflow-hidden">
+                    <div className="aspect-[4/5] overflow-hidden flex-shrink-0">
                       <ImageWithFallback
                         src={getImageUrl(member.photo) || '/Omar.png'}
                         alt={member.name}
@@ -586,7 +586,7 @@ export default function Abogados() {
                     </div>
 
                     {/* Content */}
-                    <div className="p-6">
+                    <div className="p-6 flex flex-col flex-1">
                       {/* Role Badge */}
                       <div className="mb-4">
                         <span className="inline-block px-3 py-1 bg-[#e65649] text-white font-sans text-xs font-semibold rounded-full">
@@ -627,7 +627,7 @@ export default function Abogados() {
                       </div>
 
                       {/* Industries */}
-                      <div className="mb-6">
+                      <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <GraduationCap className="w-4 h-4 text-[#e65649]" />
                           <h4 className="font-sans text-xs font-bold text-white uppercase tracking-wider">
