@@ -166,7 +166,7 @@ export function RootLayout() {
         <div className="relative max-w-7xl mx-auto px-6 lg:px-12 py-12">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
             <div className="flex items-start gap-6 flex-1">
-              <div className="w-12 h-12 text-[#e65649] flex-shrink-0">
+              <div className="w-16 h-16 text-[#e65649] flex-shrink-0">
                 <Scale className="w-full h-full" />
               </div>
               <div>
@@ -208,14 +208,8 @@ export function RootLayout() {
                 Rigor técnico, solidez jurídica y visión estratégica al servicio de empresas e instituciones del más alto nivel.
               </p>
               <div className="flex gap-4">
-                <a href="#" className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white hover:border-[#e65649] hover:text-[#e65649] transition-colors">
+                <a href="https://www.linkedin.com/company/c%C3%B3rdova-pasco-asociados/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white hover:border-[#e65649] hover:text-[#e65649] transition-colors">
                   <Linkedin className="w-5 h-5" />
-                </a>
-                <a href="#" className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white hover:border-[#e65649] hover:text-[#e65649] transition-colors">
-                  <Facebook className="w-5 h-5" />
-                </a>
-                <a href="#" className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white hover:border-[#e65649] hover:text-[#e65649] transition-colors">
-                  <Instagram className="w-5 h-5" />
                 </a>
               </div>
             </div>
