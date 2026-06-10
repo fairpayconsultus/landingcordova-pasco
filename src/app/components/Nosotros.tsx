@@ -408,7 +408,7 @@ export function Nosotros() {
             </div>
 
             <h2 className="font-display text-3xl lg:text-4xl font-bold text-[#000000] mb-6">
-              Canal Estratégico de Consultus Group
+              Canal Estratégico jurídico de Consultus Group
             </h2>
 
             <div className="space-y-4 font-sans text-lg text-[#2D2D3D] font-normal leading-relaxed">

@@ -283,7 +283,7 @@ export function Home() {
               className="font-sans text-sm sm:text-base md:text-lg lg:text-xl text-gray-300 mb-3 max-w-3xl mx-auto font-light leading-snug px-4"
             >
               Estudio boutique especializado en asesoría jurídica de alta complejidad para el sector público y privado.
-              Canal estratégico de <span className="text-white font-medium">Consultus Group</span>.
+              Canal estratégico jurídico de <span className="text-white font-medium">Consultus Group</span>.
             </motion.p>
 
             {/* Sectors Pills - Responsive */}
